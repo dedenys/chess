@@ -1,0 +1,4 @@
+package chess;
+
+interface PieceMoveCalculator {
+}
