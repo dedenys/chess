@@ -24,12 +24,40 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
         int row = position.getRow();
         int column = position.getColumn();
 
+        // white team movement
         if (pieceColor == ChessGame.TeamColor.WHITE) {
             ChessPosition end = new ChessPosition(row+1, column);
 
+            // single forward movement
             if (board.getPiece(end) == null) {
-                ChessMove newMove = new ChessMove(position, end, null);
+                ChessMove newMove;
+
+                if (end.getRow() == 7) {
+                    newMove = new ChessMove(position, end, null);
+                }
+                else {
+                    newMove = new ChessMove(position, end, null);
+                }
+                al.add(newMove);
             }
+
+            // starting double movement
+            if (position.getRow() == 2) {
+                ChessPosition end2 = new ChessPosition(row+1, column);
+
+                if (board.getPiece(end2) == null) {
+                    ChessMove newMove = new ChessMove(position, end2, null);
+
+                    al.add(newMove);
+                }
+
+            }
+
+            //
+        }
+        // black team movement
+        else {
+            ChessPosition end = new ChessPosition(row-1, column);
         }
 
         return al;
