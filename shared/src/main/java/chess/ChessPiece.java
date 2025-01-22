@@ -52,6 +52,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        if (pieceType == ChessPiece.PieceType.PAWN) {
+            PawnMovesCalculator calc = new PawnMovesCalculator(board, myPosition, teamColor);
+            return calc.pieceMoves();
+        }
+        else {
+            return null;
+        }
+        //throw new RuntimeException("Not implemented");
     }
 }
