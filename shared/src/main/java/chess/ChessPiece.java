@@ -61,6 +61,10 @@ public class ChessPiece {
             KingMovesCalculator calc = new KingMovesCalculator(board, myPosition, teamColor);
             return calc.pieceMoves();
         }
+        else if (pieceType == PieceType.QUEEN) {
+            QueenMovesCalculator calc = new QueenMovesCalculator(board, myPosition, teamColor);
+            return calc.pieceMoves();
+        }
         else if (pieceType == PieceType.KNIGHT) {
             KnightMovesCalculator calc = new KnightMovesCalculator(board, myPosition, teamColor);
             return calc.pieceMoves();
