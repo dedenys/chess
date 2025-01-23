@@ -69,6 +69,10 @@ public class ChessPiece {
             RookMovesCalculator calc = new RookMovesCalculator(board, myPosition, teamColor);
             return calc.pieceMoves();
         }
+        else if (pieceType == PieceType.BISHOP) {
+            BishopMovesCalculator calc = new BishopMovesCalculator(board, myPosition, teamColor);
+            return calc.pieceMoves();
+        }
         else {
             throw new RuntimeException("Not implemented");
         }
