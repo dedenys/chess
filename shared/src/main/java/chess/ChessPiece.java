@@ -65,6 +65,10 @@ public class ChessPiece {
             KnightMovesCalculator calc = new KnightMovesCalculator(board, myPosition, teamColor);
             return calc.pieceMoves();
         }
+        else if (pieceType == PieceType.ROOK) {
+            RookMovesCalculator calc = new RookMovesCalculator(board, myPosition, teamColor);
+            return calc.pieceMoves();
+        }
         else {
             throw new RuntimeException("Not implemented");
         }
