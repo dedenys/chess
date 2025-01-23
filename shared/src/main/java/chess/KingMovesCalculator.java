@@ -15,6 +15,7 @@ public class KingMovesCalculator implements PieceMoveCalculator {
         this.pieceColor = pieceColor;
     }
 
+    @Override
     public Collection<ChessMove> pieceMoves() {
 
         Collection<ChessMove> al = new ArrayList<>();
