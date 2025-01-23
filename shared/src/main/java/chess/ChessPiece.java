@@ -57,8 +57,9 @@ public class ChessPiece {
             PawnMovesCalculator calc = new PawnMovesCalculator(board, myPosition, teamColor);
             return calc.pieceMoves();
         }
-        else if (pieceType == PieceType.BISHOP) {
-
+        else if (pieceType == PieceType.KING) {
+            KingMovesCalculator calc = new KingMovesCalculator(board, myPosition, teamColor);
+            return calc.pieceMoves();
         }
         else {
             throw new RuntimeException("Not implemented");

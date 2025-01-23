@@ -32,49 +32,60 @@ public class KingMovesCalculator implements PieceMoveCalculator {
         ChessPosition rightUp = new ChessPosition(row+1, column+1);
         ChessPosition rightDown = new ChessPosition(row-1, column+1);
 
-        // check valid moves for a WHITE king
-        if (pieceColor == ChessGame.TeamColor.WHITE) {
+        // check which end positions are valid
 
-            if (board.getPiece(left) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, left, null);
-                al.add(m);
-            }
-            if (board.getPiece(right) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, right, null);
-                al.add(m);
-            }
-            if (board.getPiece(up) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, up, null);
-                al.add(m);
-            }
-            if (board.getPiece(down) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, down, null);
-                al.add(m);
-            }
-
-
-            if (board.getPiece(leftUp) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, leftUp, null);
-                al.add(m);
-            }
-            if (board.getPiece(leftDown) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, leftDown, null);
-                al.add(m);
-            }
-            if (board.getPiece(rightUp) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, rightUp, null);
-                al.add(m);
-            }
-            if (board.getPiece(rightDown) == null || board.getPiece(left).getTeamColor() != pieceColor) {
-                ChessMove m = new ChessMove(position, rightDown, null);
-                al.add(m);
-            }
+        if (checkForValidEnd(left)) {
+            ChessMove m = new ChessMove(position, left, null);
+            al.add(m);
         }
-        // check valid moves for a BLACK king
-        else {
+        if (checkForValidEnd(right)) {
+            ChessMove m = new ChessMove(position, right, null);
+            al.add(m);
+        }
+        if (checkForValidEnd(up)) {
+            ChessMove m = new ChessMove(position, up, null);
+            al.add(m);
+        }
+        if (checkForValidEnd(down)) {
+            ChessMove m = new ChessMove(position, down, null);
+            al.add(m);
+        }
 
+
+        if (checkForValidEnd(leftUp)) {
+            ChessMove m = new ChessMove(position, leftUp, null);
+            al.add(m);
+        }
+        if (checkForValidEnd(leftDown)) {
+            ChessMove m = new ChessMove(position, leftDown, null);
+            al.add(m);
+        }
+        if (checkForValidEnd(rightUp)) {
+            ChessMove m = new ChessMove(position, rightUp, null);
+            al.add(m);
+        }
+        if (checkForValidEnd(rightDown)) {
+            ChessMove m = new ChessMove(position, rightDown, null);
+            al.add(m);
         }
 
         return al;
+    }
+
+    private boolean checkForValidEnd(ChessPosition end) {
+        int endRow = end.getRow();
+        int endColumn = end.getColumn();
+
+        // check for out of bounds
+        if (endRow <= 0 || endRow >= 9 || endColumn <= 0 || endColumn >= 9 ) {
+            return false;
+        }
+        if (board.getPiece(end) == null || board.getPiece(end).getTeamColor() != pieceColor) {
+            return true;
+        }
+
+        return false;
+
+
     }
 }
