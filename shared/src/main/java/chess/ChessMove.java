@@ -55,12 +55,12 @@ public class ChessMove {
             return false;
         }
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end);
+        return Objects.equals(start, chessMove.start) && Objects.equals(end, chessMove.end) && Objects.equals(pieceType, chessMove.pieceType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(start, end);
+        return Objects.hash(start, end, pieceType);
     }
 
     @Override
