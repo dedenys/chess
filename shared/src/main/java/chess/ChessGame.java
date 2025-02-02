@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -55,8 +56,32 @@ public class ChessGame {
         }
 
         ChessPiece piece = currentBoard.getPiece(startPosition);
+        TeamColor color = piece.getTeamColor();
+        Collection<ChessMove> currentMoves = piece.pieceMoves(currentBoard, startPosition);
+        Collection<ChessMove> valid = new ArrayList<>();
 
-        return piece.pieceMoves(currentBoard, startPosition);
+        for (ChessMove move : currentMoves) {
+            ChessBoard newBoard = currentBoard.clone();
+            ChessPosition start = move.getStartPosition();
+            ChessPosition end = move.getEndPosition();
+
+            ChessBoard realBoard = currentBoard;
+
+            currentBoard = newBoard;
+
+            currentBoard.addPiece(start, null);
+            currentBoard.addPiece(end, piece);
+
+            if (isInCheck(color) != true) {
+                valid.add(move);
+            }
+
+            currentBoard = realBoard;
+
+        }
+
+
+        return valid;
     }
 
     /**
@@ -67,9 +92,10 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
-        ChessPiece pieceAtMove = currentBoard.getPiece(move.getStartPosition());
+
         ChessPosition start = move.getStartPosition();
         ChessPosition end = move.getEndPosition();
+        ChessPiece pieceAtMove = currentBoard.getPiece(start);
 
         if (pieceAtMove == null) {
             throw new InvalidMoveException();
@@ -78,10 +104,32 @@ public class ChessGame {
             throw new InvalidMoveException();
         }
 
-        //throw new RuntimeException("Not implemented");
-        currentBoard.addPiece(start, null);
-        currentBoard.addPiece(end, pieceAtMove);
+        // check for validity of move
+        Collection<ChessMove> validMoves = pieceAtMove.pieceMoves(currentBoard, start);//validMoves(start);
+        boolean matchFound = false;
 
+        for (ChessMove validMove : validMoves) {
+            if (validMove.equals(move)) {
+                matchFound = true;
+            }
+        }
+
+        if (!matchFound) {
+            throw new InvalidMoveException();
+        }
+
+        // execute movement
+        currentBoard.addPiece(start, null);
+
+        if ((pieceAtMove.getPieceType() == ChessPiece.PieceType.PAWN) && move.getPromotionPiece() != null) {
+            ChessPiece newPiece = new ChessPiece(pieceAtMove.getTeamColor(), move.getPromotionPiece());
+            currentBoard.addPiece(end, newPiece);
+        }
+        else {
+            currentBoard.addPiece(end, pieceAtMove);
+        }
+
+        // change turn
         if (currentTeamColor == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
         }
