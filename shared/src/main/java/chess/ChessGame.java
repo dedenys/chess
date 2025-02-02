@@ -82,6 +82,13 @@ public class ChessGame {
         currentBoard.addPiece(start, null);
         currentBoard.addPiece(end, pieceAtMove);
 
+        if (currentTeamColor == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        }
+        else {
+            setTeamTurn(TeamColor.WHITE);
+        }
+
 
     }
 
