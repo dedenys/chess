@@ -172,12 +172,12 @@ public class ChessGame {
                 ChessPosition position = new ChessPosition(i+1, j+1);
                 ChessPiece piece = currentBoard.getPiece(position);
 
-                if (piece != null) {
+                if (piece != null && piece.getTeamColor() != teamColor) {
 
                     Collection<ChessMove> moves = piece.pieceMoves(currentBoard, position);
 
                     for (ChessMove move : moves) {
-                        if (move.getEndPosition() == king) {
+                        if (move.getEndPosition().equals(king)) {
                             return true;
                         }
                     }
