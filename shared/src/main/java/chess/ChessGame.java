@@ -12,10 +12,10 @@ import java.util.Collection;
 public class ChessGame {
 
     TeamColor currentTeamColor = TeamColor.WHITE;
-    ChessBoard currentBoard;
+    ChessBoard currentBoard = new ChessBoard();
 
     public ChessGame() {
-
+        currentBoard.resetBoard();
     }
 
     /**
@@ -105,7 +105,7 @@ public class ChessGame {
         }
 
         // check for validity of move
-        Collection<ChessMove> validMoves = pieceAtMove.pieceMoves(currentBoard, start);//validMoves(start);
+        Collection<ChessMove> validMoves = validMoves(start);//pieceAtMove.pieceMoves(currentBoard, start);//validMoves(start);
         boolean matchFound = false;
 
         for (ChessMove validMove : validMoves) {
