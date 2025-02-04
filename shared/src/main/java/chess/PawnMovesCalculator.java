@@ -103,7 +103,7 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                     ChessMove m = new ChessMove(position, leftUp, null);
                     al.add(m);
                 }
-                if (checkForValidEnd(rightUp) && board.getPiece(rightUp) != null && board.getPiece(leftUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (checkForValidEnd(rightUp) && board.getPiece(rightUp) != null && board.getPiece(rightUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
                     ChessMove m = new ChessMove(position, rightUp, null);
                     al.add(m);
                 }
