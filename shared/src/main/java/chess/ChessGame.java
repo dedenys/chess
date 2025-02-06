@@ -13,6 +13,11 @@ public class ChessGame {
 
     TeamColor currentTeamColor = TeamColor.WHITE;
     ChessBoard currentBoard = new ChessBoard();
+    boolean whiteKingMoved = false;
+    boolean whiteLeftRookMoved = false;
+    boolean whiteRightRookMoved = false;
+    boolean blackKingMoved = false;
+    boolean blackRookMoved = false;
 
     public ChessGame() {
         currentBoard.resetBoard();
@@ -50,7 +55,6 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
         if (currentBoard.getPiece(startPosition) == null) {
             return null;
         }
@@ -80,6 +84,16 @@ public class ChessGame {
 
         }
 
+        // castling
+        ChessMove castleLeft = castleCheckerLeft(color, piece, startPosition);
+        ChessMove castleRight = castleCheckerRight(color, piece, startPosition);
+
+        if (castleLeft != null) {
+            valid.add(castleLeft);
+        }
+        if (castleRight != null) {
+            valid.add(castleRight);
+        }
 
         return valid;
     }
@@ -124,6 +138,59 @@ public class ChessGame {
         if ((pieceAtMove.getPieceType() == ChessPiece.PieceType.PAWN) && move.getPromotionPiece() != null) {
             ChessPiece newPiece = new ChessPiece(pieceAtMove.getTeamColor(), move.getPromotionPiece());
             currentBoard.addPiece(end, newPiece);
+        }
+        // castling check
+        else if (pieceAtMove.getPieceType() == ChessPiece.PieceType.KING) {
+            if (pieceAtMove.getTeamColor() == TeamColor.WHITE) {
+                ChessPosition s = new ChessPosition(1,5);
+                ChessPosition left = new ChessPosition(1,3);
+                ChessPosition right = new ChessPosition(1,7);
+
+                if (end.equals(left) && start.equals(s)) {
+                    currentBoard.addPiece(end, pieceAtMove);
+                    ChessPosition rookNewPos = new ChessPosition(1,4);
+                    ChessPosition rookOldPos = new ChessPosition(1,1);
+                    ChessPiece rook = new ChessPiece(TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+
+                    currentBoard.addPiece(rookOldPos, null);
+                    currentBoard.addPiece(rookNewPos, rook);
+
+                }
+                else if (end.equals(right) && start.equals(s)) {
+                    currentBoard.addPiece(end, pieceAtMove);
+                    ChessPosition rookNewPos = new ChessPosition(1,6);
+                    ChessPosition rookOldPos = new ChessPosition(1,8);
+                    ChessPiece rook = new ChessPiece(TeamColor.WHITE, ChessPiece.PieceType.ROOK);
+
+                    currentBoard.addPiece(rookOldPos, null);
+                    currentBoard.addPiece(rookNewPos, rook);
+                }
+                else {
+                    currentBoard.addPiece(end, pieceAtMove);
+                }
+
+                if (!whiteKingMoved) {
+                    whiteKingMoved = true;
+                }
+            }
+            else {
+                currentBoard.addPiece(end, pieceAtMove);
+            }
+
+        }
+        else if (pieceAtMove.getPieceType() == ChessPiece.PieceType.ROOK) {
+            if (pieceAtMove.getTeamColor() == TeamColor.WHITE) {
+                ChessPosition rookLeftPos = new ChessPosition(1,1);
+                ChessPosition rookRightPos = new ChessPosition(1,8);
+
+                if (start.equals(rookRightPos) && !whiteRightRookMoved) {
+                    whiteRightRookMoved = true;
+                }
+                if (start.equals(rookLeftPos) && !whiteLeftRookMoved) {
+                    whiteLeftRookMoved = true;
+                }
+            }
+            currentBoard.addPiece(end, pieceAtMove);
         }
         else {
             currentBoard.addPiece(end, pieceAtMove);
@@ -192,6 +259,131 @@ public class ChessGame {
     }
 
     /**
+     * Checks for a valid castling move on the left side
+     * @param color
+     * @param piece
+     * @param startPosition
+     * @return null if no valid castle, or a ChessMove with valid castle
+     */
+    private ChessMove castleCheckerLeft(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        ChessMove whiteValid = null;
+        ChessMove blackValid = null;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && color == TeamColor.WHITE) {
+            // for white team
+            ChessPosition whiteStart = new ChessPosition(1,5);
+
+            if (startPosition.equals(whiteStart) && !whiteKingMoved) {
+                ChessPosition middleSpace1 = new ChessPosition(1, 2);
+                ChessPosition middleSpace2 = new ChessPosition(1, 3);
+                ChessPosition middleSpace3 = new ChessPosition(1, 4);
+
+                if (!whiteLeftRookMoved && currentBoard.getPiece(middleSpace1) == null && currentBoard.getPiece(middleSpace2) == null && currentBoard.getPiece(middleSpace3) == null) {
+                    ChessBoard realBoard = currentBoard;
+                    ChessBoard left = currentBoard.clone();
+                    ChessBoard leftLeft = currentBoard.clone();
+
+                    left.addPiece(middleSpace3, piece);
+                    left.addPiece(startPosition, null);
+
+                    leftLeft.addPiece(middleSpace2, piece);
+                    leftLeft.addPiece(startPosition, null);
+
+                    boolean notInCheck = true;
+
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = left;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = leftLeft;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = realBoard;
+
+                    // all conditions are met
+                    if (notInCheck) {
+                        ChessMove castle = new ChessMove(startPosition, middleSpace2, null);
+                        //valid.add(castle);
+                        whiteValid = castle;
+                    }
+                }
+            }
+        }
+
+        if (whiteValid != null) {
+            return whiteValid;
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks for a valid castling move on the right side
+     * @param color
+     * @param piece
+     * @param startPosition
+     * @return null if no valid castle, or a ChessMove with valid castle
+     */
+    private ChessMove castleCheckerRight(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        ChessMove whiteValid = null;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && color == TeamColor.WHITE) {
+            // for white team
+            ChessPosition whiteStart = new ChessPosition(1,5);
+
+            if (startPosition.equals(whiteStart) && !whiteKingMoved) {
+                ChessPosition middleSpace4 = new ChessPosition(1,6);
+                ChessPosition middleSpace5 = new ChessPosition(1,7);
+
+                if (!whiteRightRookMoved && currentBoard.getPiece(middleSpace4) == null && currentBoard.getPiece(middleSpace5) == null) {
+                    ChessBoard realBoard = currentBoard;
+                    ChessBoard right = currentBoard.clone();
+                    ChessBoard rightRight = currentBoard.clone();
+
+                    right.addPiece(middleSpace4, piece);
+                    rightRight.addPiece(startPosition, null);
+
+                    rightRight.addPiece(middleSpace5, piece);
+                    rightRight.addPiece(startPosition, null);
+
+                    boolean notInCheck = true;
+
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = right;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = rightRight;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = realBoard;
+
+                    // all conditions are met
+                    if (notInCheck) {
+                        ChessMove castle = new ChessMove(startPosition, middleSpace5, null);
+                        //valid.add(castle);
+                        whiteValid = castle;
+                    }
+                }
+
+            }
+        }
+        if (whiteValid != null) {
+            return whiteValid;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Determines if the given team is in checkmate
      *
      * @param teamColor which team to check for checkmate
@@ -226,6 +418,11 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         currentBoard = board;
+        whiteKingMoved = false;
+        whiteLeftRookMoved = false;
+        whiteRightRookMoved = false;
+        blackKingMoved = false;
+        blackRookMoved = false;
     }
 
     /**
