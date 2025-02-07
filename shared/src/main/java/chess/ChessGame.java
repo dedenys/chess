@@ -16,8 +16,10 @@ public class ChessGame {
     boolean whiteKingMoved = false;
     boolean whiteLeftRookMoved = false;
     boolean whiteRightRookMoved = false;
+
     boolean blackKingMoved = false;
-    boolean blackRookMoved = false;
+    boolean blackLeftRookMoved = false;
+    boolean blackRightRookMoved = false;
 
     public ChessGame() {
         currentBoard.resetBoard();
@@ -85,8 +87,16 @@ public class ChessGame {
         }
 
         // castling
-        ChessMove castleLeft = castleCheckerLeft(color, piece, startPosition);
-        ChessMove castleRight = castleCheckerRight(color, piece, startPosition);
+        ChessMove castleLeft;
+        ChessMove castleRight;
+        if (color == TeamColor.WHITE) {
+            castleLeft = castleCheckerWhiteLeft(color, piece, startPosition);
+            castleRight = castleCheckerWhiteRight(color, piece, startPosition);
+        }
+        else {
+            castleLeft = castleCheckerBlackLeft(color, piece, startPosition);
+            castleRight = castleCheckerBlackRight(color, piece, startPosition);
+        }
 
         if (castleLeft != null) {
             valid.add(castleLeft);
@@ -174,7 +184,36 @@ public class ChessGame {
                 }
             }
             else {
-                currentBoard.addPiece(end, pieceAtMove);
+                ChessPosition s = new ChessPosition(8,5);
+                ChessPosition left = new ChessPosition(8,3);
+                ChessPosition right = new ChessPosition(8,7);
+
+                if (end.equals(left) && start.equals(s)) {
+                    currentBoard.addPiece(end, pieceAtMove);
+                    ChessPosition rookNewPos = new ChessPosition(8,4);
+                    ChessPosition rookOldPos = new ChessPosition(8,1);
+                    ChessPiece rook = new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+
+                    currentBoard.addPiece(rookOldPos, null);
+                    currentBoard.addPiece(rookNewPos, rook);
+
+                }
+                else if (end.equals(right) && start.equals(s)) {
+                    currentBoard.addPiece(end, pieceAtMove);
+                    ChessPosition rookNewPos = new ChessPosition(8,6);
+                    ChessPosition rookOldPos = new ChessPosition(8,8);
+                    ChessPiece rook = new ChessPiece(TeamColor.BLACK, ChessPiece.PieceType.ROOK);
+
+                    currentBoard.addPiece(rookOldPos, null);
+                    currentBoard.addPiece(rookNewPos, rook);
+                }
+                else {
+                    currentBoard.addPiece(end, pieceAtMove);
+                }
+
+                if (!blackKingMoved) {
+                    blackKingMoved = true;
+                }
             }
 
         }
@@ -188,6 +227,17 @@ public class ChessGame {
                 }
                 if (start.equals(rookLeftPos) && !whiteLeftRookMoved) {
                     whiteLeftRookMoved = true;
+                }
+            }
+            else {
+                ChessPosition rookLeftPos = new ChessPosition(8,1);
+                ChessPosition rookRightPos = new ChessPosition(8,8);
+
+                if (start.equals(rookRightPos) && !blackRightRookMoved) {
+                    blackRightRookMoved = true;
+                }
+                if (start.equals(rookLeftPos) && !blackLeftRookMoved) {
+                    blackLeftRookMoved = true;
                 }
             }
             currentBoard.addPiece(end, pieceAtMove);
@@ -265,7 +315,7 @@ public class ChessGame {
      * @param startPosition
      * @return null if no valid castle, or a ChessMove with valid castle
      */
-    private ChessMove castleCheckerLeft(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+    private ChessMove castleCheckerWhiteLeft(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
         ChessMove whiteValid = null;
         ChessMove blackValid = null;
 
@@ -321,6 +371,61 @@ public class ChessGame {
         return null;
     }
 
+    private ChessMove castleCheckerBlackLeft(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        ChessMove blackValid = null;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && color == TeamColor.BLACK) {
+            // for black team
+            ChessPosition whiteStart = new ChessPosition(8,5);
+
+            if (startPosition.equals(whiteStart) && !whiteKingMoved) {
+                ChessPosition middleSpace1 = new ChessPosition(8, 2);
+                ChessPosition middleSpace2 = new ChessPosition(8, 3);
+                ChessPosition middleSpace3 = new ChessPosition(8, 4);
+
+                if (!blackLeftRookMoved && currentBoard.getPiece(middleSpace1) == null && currentBoard.getPiece(middleSpace2) == null && currentBoard.getPiece(middleSpace3) == null) {
+                    ChessBoard realBoard = currentBoard;
+                    ChessBoard left = currentBoard.clone();
+                    ChessBoard leftLeft = currentBoard.clone();
+
+                    left.addPiece(middleSpace3, piece);
+                    left.addPiece(startPosition, null);
+
+                    leftLeft.addPiece(middleSpace2, piece);
+                    leftLeft.addPiece(startPosition, null);
+
+                    boolean notInCheck = true;
+
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = left;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = leftLeft;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = realBoard;
+
+                    // all conditions are met
+                    if (notInCheck) {
+                        ChessMove castle = new ChessMove(startPosition, middleSpace2, null);
+                        //valid.add(castle);
+                        blackValid = castle;
+                    }
+                }
+            }
+        }
+
+        if (blackValid != null) {
+            return blackValid;
+        }
+
+        return null;
+    }
+
     /**
      * Checks for a valid castling move on the right side
      * @param color
@@ -328,7 +433,7 @@ public class ChessGame {
      * @param startPosition
      * @return null if no valid castle, or a ChessMove with valid castle
      */
-    private ChessMove castleCheckerRight(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+    private ChessMove castleCheckerWhiteRight(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
         ChessMove whiteValid = null;
 
         if (piece.getPieceType() == ChessPiece.PieceType.KING && color == TeamColor.WHITE) {
@@ -382,6 +487,60 @@ public class ChessGame {
         return null;
     }
 
+    private ChessMove castleCheckerBlackRight(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        ChessMove blackValid = null;
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && color == TeamColor.BLACK) {
+            // for black team
+            ChessPosition whiteStart = new ChessPosition(8,5);
+
+            if (startPosition.equals(whiteStart) && !whiteKingMoved) {
+                ChessPosition middleSpace4 = new ChessPosition(8,6);
+                ChessPosition middleSpace5 = new ChessPosition(8,7);
+
+                if (!blackRightRookMoved && currentBoard.getPiece(middleSpace4) == null && currentBoard.getPiece(middleSpace5) == null) {
+                    ChessBoard realBoard = currentBoard;
+                    ChessBoard right = currentBoard.clone();
+                    ChessBoard rightRight = currentBoard.clone();
+
+                    right.addPiece(middleSpace4, piece);
+                    rightRight.addPiece(startPosition, null);
+
+                    rightRight.addPiece(middleSpace5, piece);
+                    rightRight.addPiece(startPosition, null);
+
+                    boolean notInCheck = true;
+
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = right;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = rightRight;
+                    if (isInCheck(color)) {
+                        notInCheck = false;
+                    }
+                    currentBoard = realBoard;
+
+                    // all conditions are met
+                    if (notInCheck) {
+                        ChessMove castle = new ChessMove(startPosition, middleSpace5, null);
+                        //valid.add(castle);
+                        blackValid = castle;
+                    }
+                }
+
+            }
+        }
+        if (blackValid != null) {
+            return blackValid;
+        }
+
+        return null;
+    }
+
 
     /**
      * Determines if the given team is in checkmate
@@ -421,8 +580,10 @@ public class ChessGame {
         whiteKingMoved = false;
         whiteLeftRookMoved = false;
         whiteRightRookMoved = false;
+
         blackKingMoved = false;
-        blackRookMoved = false;
+        blackLeftRookMoved = false;
+        blackRightRookMoved = false;
     }
 
     /**
