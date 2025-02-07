@@ -119,8 +119,8 @@ public class ChessGame {
             enPassantRight = enPassantRightWhiteCheck(color, piece, startPosition);
         }
         else {
-            enPassantLeft = null;
-            enPassantRight = null;
+            enPassantLeft = enPassantLeftBlackCheck(color, piece, startPosition);
+            enPassantRight = enPassantRightBlackCheck(color, piece, startPosition);
         }
 
         if (enPassantLeft != null) {
@@ -161,6 +161,7 @@ public class ChessGame {
         for (ChessMove validMove : validMoves) {
             if (validMove.equals(move)) {
                 matchFound = true;
+                break;
             }
         }
 
@@ -175,6 +176,7 @@ public class ChessGame {
             ChessPiece newPiece = new ChessPiece(pieceAtMove.getTeamColor(), move.getPromotionPiece());
             currentBoard.addPiece(end, newPiece);
         }
+        // en passant check
         else if (pieceAtMove.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (pieceAtMove.getTeamColor() == TeamColor.WHITE) {
                 if (start.getRow() == 5 && end.getColumn() != start.getColumn() && currentBoard.getPiece(end) == null) {
@@ -187,7 +189,14 @@ public class ChessGame {
                 }
             }
             else {
-                currentBoard.addPiece(end, pieceAtMove);
+                if (start.getRow() == 4 && end.getColumn() != start.getColumn() && currentBoard.getPiece(end) == null) {
+                    currentBoard.addPiece(end, pieceAtMove);
+                    ChessPosition pieceToCapture = new ChessPosition(start.getRow(),end.getColumn());
+                    currentBoard.addPiece(pieceToCapture, null);
+                }
+                else {
+                    currentBoard.addPiece(end, pieceAtMove);
+                }
             }
         }
         // castling check
@@ -402,6 +411,72 @@ public class ChessGame {
         if (pieceRight != null && pieceRight.getPieceType() == ChessPiece.PieceType.PAWN) {
             if (right.equals(lastMove.getEndPosition())) {
                 ChessPosition endPos = new ChessPosition(row+1, col+1);
+                ChessMove enPassantRight = new ChessMove(startPosition, endPos, null);
+
+                return enPassantRight;
+            }
+        }
+        return null;
+    }
+
+    private ChessMove enPassantLeftBlackCheck(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            return null;
+        }
+        if (!lastMoveWasDouble) {
+            return null;
+        }
+
+        int row = startPosition.getRow();
+        if (row != 4) {
+            return null;
+        }
+
+        int col = startPosition.getColumn();
+
+        if ((col-1) < 1) {
+            return null;
+        }
+
+        ChessPosition left = new ChessPosition(row, col-1);
+        ChessPiece pieceLeft = currentBoard.getPiece(left);
+
+        if (pieceLeft != null && pieceLeft.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (left.equals(lastMove.getEndPosition())) {
+                ChessPosition endPos = new ChessPosition(row-1, col-1);
+                ChessMove enPassantLeft = new ChessMove(startPosition, endPos, null);
+
+                return enPassantLeft;
+            }
+        }
+        return null;
+    }
+
+    private ChessMove enPassantRightBlackCheck(TeamColor color, ChessPiece piece, ChessPosition startPosition) {
+        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            return null;
+        }
+        if (!lastMoveWasDouble) {
+            return null;
+        }
+
+        int row = startPosition.getRow();
+        if (row != 4) {
+            return null;
+        }
+
+        int col = startPosition.getColumn();
+
+        if ((col+1) > 8) {
+            return null;
+        }
+
+        ChessPosition right = new ChessPosition(row, col+1);
+        ChessPiece pieceRight = currentBoard.getPiece(right);
+
+        if (pieceRight != null && pieceRight.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if (right.equals(lastMove.getEndPosition())) {
+                ChessPosition endPos = new ChessPosition(row-1, col+1);
                 ChessMove enPassantRight = new ChessMove(startPosition, endPos, null);
 
                 return enPassantRight;
