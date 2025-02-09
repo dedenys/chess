@@ -114,13 +114,15 @@ public class ChessGame {
         // en passant
         ChessMove enPassantLeft;
         ChessMove enPassantRight;
+
+        EnPassantPackage enPassant = new EnPassantPackage(currentBoard, lastMove, lastMoveWasDouble);
         if (color == TeamColor.WHITE) {
-            enPassantLeft = enPassantLeftWhiteCheck(piece, startPosition);
-            enPassantRight = enPassantRightWhiteCheck(piece, startPosition);
+            enPassantLeft = enPassant.enPassantLeftWhiteCheck(piece, startPosition);
+            enPassantRight = enPassant.enPassantRightWhiteCheck(piece, startPosition);
         }
         else {
-            enPassantLeft = enPassantLeftBlackCheck(piece, startPosition);
-            enPassantRight = enPassantRightBlackCheck(piece, startPosition);
+            enPassantLeft = enPassant.enPassantLeftBlackCheck(piece, startPosition);
+            enPassantRight = enPassant.enPassantRightBlackCheck(piece, startPosition);
         }
 
         if (enPassantLeft != null) {
@@ -308,153 +310,11 @@ public class ChessGame {
         lastMove = move;
 
         if (pieceAtMove.getPieceType() == ChessPiece.PieceType.PAWN) {
-            lastMoveWasDouble = pawnDoubleMoveCheck(move);
+            lastMoveWasDouble = EnPassantPackage.pawnDoubleMoveCheck(move);
         }
         else {
             lastMoveWasDouble = false;
         }
-
-
-    }
-
-    /**
-     * returns the difference in row positions of two moves
-     * @param move1 starting move
-     * @param move2 ending move
-     * @return absolute value of difference in row
-     */
-    private int calcRowDifference(ChessPosition move1, ChessPosition move2) {
-        int startRow = move1.getRow();
-        int endRow = move2.getRow();
-
-        return abs(endRow - startRow);
-    }
-
-    /**
-     * checks for a double move for a pawn
-     * @param m move to check for double
-     * @return true if a move is a double for a pawn
-     */
-    private boolean pawnDoubleMoveCheck(ChessMove m) {
-        ChessPosition start = m.getStartPosition();
-        ChessPosition end = m.getEndPosition();
-
-        int dif = calcRowDifference(start, end);
-
-        return dif > 1;
-    }
-
-    /**
-     * checks conditions for a valid en passant move
-     * @return returns true if all conditions for en passant are met
-     */
-    private boolean enPassantConditionsMet (ChessPiece piece, int row, int col, boolean isWhiteTeam, boolean isLeft) {
-        if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
-            return false;
-        }
-        if (!lastMoveWasDouble) {
-            return false;
-        }
-        if (isWhiteTeam) {
-            if (row != 5) {
-                return false;
-            }
-        }
-        else {
-            if (row != 4) {
-                return false;
-            }
-        }
-        if (isLeft) {
-            if ((col-1) < 1) {
-                return false;
-            }
-        }
-        else {
-            if ((col+1) > 8) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * returns a valid en passant move
-     * @return an en passant move
-     */
-    private ChessMove getEnPassantMove(int row, int col, ChessPosition startPosition, boolean isWhiteTeam, boolean isLeft) {
-        ChessPosition sidePos;
-        if (isLeft) {
-            sidePos = new ChessPosition(row, col-1);
-        }
-        else {
-            sidePos = new ChessPosition(row, col+1);
-        }
-        ChessPiece pieceSidePos = currentBoard.getPiece(sidePos);
-
-        if (pieceSidePos != null && pieceSidePos.getPieceType() == ChessPiece.PieceType.PAWN) {
-            if (sidePos.equals(lastMove.getEndPosition())) {
-                int rowFactor;
-                int columnFactor;
-                if (isWhiteTeam) {
-                    rowFactor = 1;
-                }
-                else {
-                    rowFactor = -1;
-                }
-                if (isLeft) {
-                    columnFactor = -1;
-                }
-                else {
-                    columnFactor = 1;
-                }
-                ChessPosition endPos = new ChessPosition(row+rowFactor, col+columnFactor);
-
-                return new ChessMove(startPosition, endPos, null);
-            }
-        }
-        return null;
-    }
-
-    private ChessMove enPassantLeftWhiteCheck(ChessPiece piece, ChessPosition startPosition) {
-        int row = startPosition.getRow();
-        int col = startPosition.getColumn();
-
-        if (!enPassantConditionsMet(piece, row, col, true, true)) {
-            return  null;
-        }
-        return getEnPassantMove(row, col, startPosition, true, true);
-    }
-
-    private ChessMove enPassantRightWhiteCheck(ChessPiece piece, ChessPosition startPosition) {
-        int row = startPosition.getRow();
-        int col = startPosition.getColumn();
-
-        if (!enPassantConditionsMet(piece, row, col, true, false)) {
-            return  null;
-        }
-        return getEnPassantMove(row, col, startPosition, true, false);
-    }
-
-    private ChessMove enPassantLeftBlackCheck(ChessPiece piece, ChessPosition startPosition) {
-        int row = startPosition.getRow();
-        int col = startPosition.getColumn();
-
-        if (!enPassantConditionsMet(piece, row, col, false, true)) {
-            return  null;
-        }
-        return getEnPassantMove(row, col, startPosition, false, true);
-    }
-
-    private ChessMove enPassantRightBlackCheck(ChessPiece piece, ChessPosition startPosition) {
-        int row = startPosition.getRow();
-        int col = startPosition.getColumn();
-
-        if (!enPassantConditionsMet(piece, row, col, false, false)) {
-            return  null;
-        }
-        return getEnPassantMove(row, col, startPosition, false, false);
     }
 
     /**
@@ -508,6 +368,29 @@ public class ChessGame {
         return false;
     }
 
+    private boolean leftCastleClear(ChessPosition one, ChessPosition two, ChessPosition three, boolean rookMoved) {
+        ChessPiece oneP = currentBoard.getPiece(one);
+        ChessPiece twoP = currentBoard.getPiece(two);
+        ChessPiece threeP = currentBoard.getPiece(three);
+        if (!rookMoved) {
+            if  (oneP == null && twoP == null && threeP == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean rightCastleClear(ChessPosition one, ChessPosition two, boolean rookMoved) {
+        ChessPiece oneP = currentBoard.getPiece(one);
+        ChessPiece twoP = currentBoard.getPiece(two);
+        if (!rookMoved) {
+            if  (oneP == null && twoP == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Checks for a valid castling move on the left side
      * @return null if no valid castle, or a ChessMove with valid castle
@@ -524,7 +407,7 @@ public class ChessGame {
                 ChessPosition middleSpace2 = new ChessPosition(1, 3);
                 ChessPosition middleSpace3 = new ChessPosition(1, 4);
 
-                if (!whiteLeftRookMoved && currentBoard.getPiece(middleSpace1) == null && currentBoard.getPiece(middleSpace2) == null && currentBoard.getPiece(middleSpace3) == null) {
+                if (leftCastleClear(middleSpace1, middleSpace2, middleSpace3, whiteLeftRookMoved)) {
                     ChessBoard realBoard = currentBoard;
                     ChessBoard left = currentBoard.clone();
                     ChessBoard leftLeft = currentBoard.clone();
@@ -573,7 +456,7 @@ public class ChessGame {
                 ChessPosition middleSpace2 = new ChessPosition(8, 3);
                 ChessPosition middleSpace3 = new ChessPosition(8, 4);
 
-                if (!blackLeftRookMoved && currentBoard.getPiece(middleSpace1) == null && currentBoard.getPiece(middleSpace2) == null && currentBoard.getPiece(middleSpace3) == null) {
+                if (leftCastleClear(middleSpace1, middleSpace2, middleSpace3, blackLeftRookMoved)) {
                     ChessBoard realBoard = currentBoard;
                     ChessBoard left = currentBoard.clone();
                     ChessBoard leftLeft = currentBoard.clone();
@@ -625,7 +508,7 @@ public class ChessGame {
                 ChessPosition middleSpace4 = new ChessPosition(1,6);
                 ChessPosition middleSpace5 = new ChessPosition(1,7);
 
-                if (!whiteRightRookMoved && currentBoard.getPiece(middleSpace4) == null && currentBoard.getPiece(middleSpace5) == null) {
+                if (rightCastleClear(middleSpace4, middleSpace5, whiteRightRookMoved)) {
                     ChessBoard realBoard = currentBoard;
                     ChessBoard right = currentBoard.clone();
                     ChessBoard rightRight = currentBoard.clone();
@@ -673,7 +556,7 @@ public class ChessGame {
                 ChessPosition middleSpace4 = new ChessPosition(8,6);
                 ChessPosition middleSpace5 = new ChessPosition(8,7);
 
-                if (!blackRightRookMoved && currentBoard.getPiece(middleSpace4) == null && currentBoard.getPiece(middleSpace5) == null) {
+                if (rightCastleClear(middleSpace4, middleSpace5, blackRightRookMoved)) {
                     ChessBoard realBoard = currentBoard;
                     ChessBoard right = currentBoard.clone();
                     ChessBoard rightRight = currentBoard.clone();
@@ -709,7 +592,6 @@ public class ChessGame {
         }
         return blackValid;
     }
-
 
     /**
      * Determines if the given team is in checkmate
