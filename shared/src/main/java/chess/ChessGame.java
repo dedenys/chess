@@ -15,13 +15,13 @@ public class ChessGame {
 
     TeamColor currentTeamColor = TeamColor.WHITE;
     ChessBoard currentBoard = new ChessBoard();
-    boolean whiteKingMoved = false;
-    boolean whiteLeftRookMoved = false;
-    boolean whiteRightRookMoved = false;
+    boolean wKingMoved = false;
+    boolean wLRookMoved = false;
+    boolean wRRookMoved = false;
 
-    boolean blackKingMoved = false;
-    boolean blackLeftRookMoved = false;
-    boolean blackRightRookMoved = false;
+    boolean bKingMoved = false;
+    boolean bLRookMoved = false;
+    boolean bRRookMoved = false;
 
     // en passant
     ChessMove lastMove;
@@ -96,7 +96,7 @@ public class ChessGame {
         ChessMove castleLeft;
         ChessMove castleRight;
 
-        CastlingPackage castling = new CastlingPackage(currentBoard, whiteKingMoved, whiteLeftRookMoved, whiteRightRookMoved, blackKingMoved, blackLeftRookMoved, blackRightRookMoved);
+        CastlingPackage castling = new CastlingPackage(currentBoard, wKingMoved, wLRookMoved, wRRookMoved, bKingMoved, bLRookMoved, bRRookMoved);
         if (color == TeamColor.WHITE) {
             castleLeft = castling.castleCheckerWhiteLeft(color, piece, startPosition);
             castleRight = castling.castleCheckerWhiteRight(color, piece, startPosition);
@@ -233,8 +233,8 @@ public class ChessGame {
                     currentBoard.addPiece(end, pieceAtMove);
                 }
 
-                if (!whiteKingMoved) {
-                    whiteKingMoved = true;
+                if (!wKingMoved) {
+                    wKingMoved = true;
                 }
             }
             else {
@@ -265,8 +265,8 @@ public class ChessGame {
                     currentBoard.addPiece(end, pieceAtMove);
                 }
 
-                if (!blackKingMoved) {
-                    blackKingMoved = true;
+                if (!bKingMoved) {
+                    bKingMoved = true;
                 }
             }
 
@@ -276,22 +276,22 @@ public class ChessGame {
                 ChessPosition rookLeftPos = new ChessPosition(1,1);
                 ChessPosition rookRightPos = new ChessPosition(1,8);
 
-                if (start.equals(rookRightPos) && !whiteRightRookMoved) {
-                    whiteRightRookMoved = true;
+                if (start.equals(rookRightPos) && !wRRookMoved) {
+                    wRRookMoved = true;
                 }
-                if (start.equals(rookLeftPos) && !whiteLeftRookMoved) {
-                    whiteLeftRookMoved = true;
+                if (start.equals(rookLeftPos) && !wLRookMoved) {
+                    wLRookMoved = true;
                 }
             }
             else {
                 ChessPosition rookLeftPos = new ChessPosition(8,1);
                 ChessPosition rookRightPos = new ChessPosition(8,8);
 
-                if (start.equals(rookRightPos) && !blackRightRookMoved) {
-                    blackRightRookMoved = true;
+                if (start.equals(rookRightPos) && !bRRookMoved) {
+                    bRRookMoved = true;
                 }
-                if (start.equals(rookLeftPos) && !blackLeftRookMoved) {
-                    blackLeftRookMoved = true;
+                if (start.equals(rookLeftPos) && !bLRookMoved) {
+                    bLRookMoved = true;
                 }
             }
             currentBoard.addPiece(end, pieceAtMove);
@@ -403,13 +403,13 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         currentBoard = board;
-        whiteKingMoved = false;
-        whiteLeftRookMoved = false;
-        whiteRightRookMoved = false;
+        wKingMoved = false;
+        wLRookMoved = false;
+        wRRookMoved = false;
 
-        blackKingMoved = false;
-        blackLeftRookMoved = false;
-        blackRightRookMoved = false;
+        bKingMoved = false;
+        bLRookMoved = false;
+        bRRookMoved = false;
     }
 
     /**
