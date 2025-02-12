@@ -72,7 +72,7 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                 ChessPosition leftUp = new ChessPosition(row+1, column-1);
                 ChessPosition rightUp = new ChessPosition(row+1, column+1);
 
-                if (checkForValidEnd(leftUp) && board.getPiece(leftUp) != null && board.getPiece(leftUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (validPawnCheck(leftUp, ChessGame.TeamColor.BLACK)) {
                     ChessMove m = new ChessMove(position, leftUp, ChessPiece.PieceType.KNIGHT);
                     ChessMove m2 = new ChessMove(position, leftUp, ChessPiece.PieceType.BISHOP);
                     ChessMove m3 = new ChessMove(position, leftUp, ChessPiece.PieceType.QUEEN);
@@ -83,7 +83,7 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                     al.add(m3);
                     al.add(m4);
                 }
-                if (checkForValidEnd(rightUp) && board.getPiece(rightUp) != null && board.getPiece(rightUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (validPawnCheck(rightUp, ChessGame.TeamColor.BLACK)) {
                     ChessMove m = new ChessMove(position, rightUp, ChessPiece.PieceType.KNIGHT);
                     ChessMove m2 = new ChessMove(position, rightUp, ChessPiece.PieceType.BISHOP);
                     ChessMove m3 = new ChessMove(position, rightUp, ChessPiece.PieceType.QUEEN);
@@ -99,11 +99,11 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                 ChessPosition leftUp = new ChessPosition(row+1, column-1);
                 ChessPosition rightUp = new ChessPosition(row+1, column+1);
 
-                if (checkForValidEnd(leftUp) && board.getPiece(leftUp) != null && board.getPiece(leftUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (validPawnCheck(leftUp, ChessGame.TeamColor.BLACK)) {
                     ChessMove m = new ChessMove(position, leftUp, null);
                     al.add(m);
                 }
-                if (checkForValidEnd(rightUp) && board.getPiece(rightUp) != null && board.getPiece(rightUp).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                if (validPawnCheck(rightUp, ChessGame.TeamColor.BLACK)) {
                     ChessMove m = new ChessMove(position, rightUp, null);
                     al.add(m);
                 }
@@ -159,7 +159,7 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                 ChessPosition leftDown = new ChessPosition(row-1, column-1);
                 ChessPosition rightDown = new ChessPosition(row-1, column+1);
 
-                if (checkForValidEnd(leftDown) && board.getPiece(leftDown) != null && board.getPiece(leftDown).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (validPawnCheck(leftDown, ChessGame.TeamColor.WHITE)) {
                     ChessMove m = new ChessMove(position, leftDown, ChessPiece.PieceType.KNIGHT);
                     ChessMove m2 = new ChessMove(position, leftDown, ChessPiece.PieceType.BISHOP);
                     ChessMove m3 = new ChessMove(position, leftDown, ChessPiece.PieceType.QUEEN);
@@ -170,7 +170,7 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                     al.add(m3);
                     al.add(m4);
                 }
-                if (checkForValidEnd(rightDown) && board.getPiece(rightDown) != null && board.getPiece(rightDown).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (validPawnCheck(rightDown, ChessGame.TeamColor.WHITE)) {
                     ChessMove m = new ChessMove(position, rightDown, ChessPiece.PieceType.KNIGHT);
                     ChessMove m2 = new ChessMove(position, rightDown, ChessPiece.PieceType.BISHOP);
                     ChessMove m3 = new ChessMove(position, rightDown, ChessPiece.PieceType.QUEEN);
@@ -186,11 +186,11 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
                 ChessPosition leftDown = new ChessPosition(row-1, column-1);
                 ChessPosition rightDown = new ChessPosition(row-1, column+1);
 
-                if (checkForValidEnd(leftDown) && board.getPiece(leftDown) != null && board.getPiece(leftDown).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (validPawnCheck(leftDown, ChessGame.TeamColor.WHITE)) {
                     ChessMove m = new ChessMove(position, leftDown, null);
                     al.add(m);
                 }
-                if (checkForValidEnd(rightDown) && board.getPiece(rightDown) != null && board.getPiece(rightDown).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                if (validPawnCheck(rightDown, ChessGame.TeamColor.WHITE)) {
                     ChessMove m = new ChessMove(position, rightDown, null);
                     al.add(m);
                 }
@@ -200,6 +200,14 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
         return al;
     }
 
+    private boolean validPawnCheck(ChessPosition end, ChessGame.TeamColor color) {
+        if (checkForValidEnd(end)) {
+            ChessPiece p = board.getPiece(end);
+            return p != null && p.getTeamColor() == color;
+        }
+        return false;
+        //checkForValidEnd(rightDown) && board.getPiece(rightDown) != null && board.getPiece(rightDown).getTeamColor() == ChessGame.TeamColor.WHITE
+    }
 
     private boolean checkForValidEnd(ChessPosition end) {
         int endRow = end.getRow();
