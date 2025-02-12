@@ -47,24 +47,30 @@ public class CastlingPackage {
         // iterate through opposing team pieces for a possible check
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-
-                ChessPosition position = new ChessPosition(i + 1, j + 1);
-                ChessPiece piece = currentBoard.getPiece(position);
-
-                if (piece != null && piece.getTeamColor() != teamColor) {
-
-                    Collection<ChessMove> moves = piece.pieceMoves(currentBoard, position);
-
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(king)) {
-                            return true;
-                        }
-                    }
-
+                if (isUnderAttack(i, j, teamColor, king)) {
+                    return true;
                 }
             }
         }
         // no check was found
+        return false;
+    }
+
+    private boolean isUnderAttack(int i, int j, ChessGame.TeamColor teamColor, ChessPosition king) {
+        ChessPosition position = new ChessPosition(i + 1, j + 1);
+        ChessPiece piece = currentBoard.getPiece(position);
+
+        if (piece != null && piece.getTeamColor() != teamColor) {
+
+            Collection<ChessMove> moves = piece.pieceMoves(currentBoard, position);
+
+            for (ChessMove move : moves) {
+                if (move.getEndPosition().equals(king)) {
+                    return true;
+                }
+            }
+
+        }
         return false;
     }
 
