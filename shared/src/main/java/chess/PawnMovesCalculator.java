@@ -18,186 +18,74 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
 
     @Override
     public Collection<ChessMove> pieceMoves() {
-
         Collection<ChessMove> al = new ArrayList<>();
 
         int row = position.getRow();
         int column = position.getColumn();
 
-        // white team movement
+        // WHITE
         if (pieceColor == ChessGame.TeamColor.WHITE) {
-
-            // start row
-            if (row == 2) {
-                ChessPosition up = new ChessPosition(row+1, column);
-                ChessPosition doubleup = new ChessPosition(row+2, column);
-
-                if (board.getPiece(up) == null) {
-                    ChessMove m = new ChessMove(position, up, null);
-                    al.add(m);
-
-                    if (board.getPiece(doubleup) == null) {
-                        ChessMove m2 = new ChessMove(position, doubleup, null);
-                        al.add(m2);
-                    }
-                }
-            }
-            // end row
-            else if (row == 7) {
-                ChessPosition up = new ChessPosition(row+1, column);
-
-                if (board.getPiece(up) == null) {
-                    ChessMove m = new ChessMove(position, up, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, up, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, up, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, up, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-            }
-            else {
-                ChessPosition up = new ChessPosition(row+1, column);
-
-                if (board.getPiece(up) == null) {
-                    ChessMove m = new ChessMove(position, up, null);
-                    al.add(m);
-                }
-            }
-
-            // capture check
-            if (row == 7) {
-                ChessPosition leftUp = new ChessPosition(row+1, column-1);
-                ChessPosition rightUp = new ChessPosition(row+1, column+1);
-
-                if (validPawnCheck(leftUp, ChessGame.TeamColor.BLACK)) {
-                    ChessMove m = new ChessMove(position, leftUp, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, leftUp, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, leftUp, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, leftUp, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-                if (validPawnCheck(rightUp, ChessGame.TeamColor.BLACK)) {
-                    ChessMove m = new ChessMove(position, rightUp, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, rightUp, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, rightUp, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, rightUp, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-            }
-            else {
-                ChessPosition leftUp = new ChessPosition(row+1, column-1);
-                ChessPosition rightUp = new ChessPosition(row+1, column+1);
-
-                if (validPawnCheck(leftUp, ChessGame.TeamColor.BLACK)) {
-                    ChessMove m = new ChessMove(position, leftUp, null);
-                    al.add(m);
-                }
-                if (validPawnCheck(rightUp, ChessGame.TeamColor.BLACK)) {
-                    ChessMove m = new ChessMove(position, rightUp, null);
-                    al.add(m);
-                }
-            }
+            forwardCheck(row, column, al, 1, 2, 7);
+            captureCheck(row, column, al, ChessGame.TeamColor.BLACK, 1, 7);
         }
-        // BLACK team movement
-
+        // BLACK
         else {
-
-            // start row
-            if (row == 7) {
-                ChessPosition down = new ChessPosition(row-1, column);
-                ChessPosition doubleDown = new ChessPosition(row-2, column);
-
-                if (board.getPiece(down) == null) {
-                    ChessMove m = new ChessMove(position, down, null);
-                    al.add(m);
-
-                    if (board.getPiece(doubleDown) == null) {
-                        ChessMove m2 = new ChessMove(position, doubleDown, null);
-                        al.add(m2);
-                    }
-                }
-
-            }
-            // end row
-            else if (row == 2) {
-                ChessPosition down = new ChessPosition(row-1, column);
-
-                if (board.getPiece(down) == null) {
-                    ChessMove m = new ChessMove(position, down, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, down, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, down, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, down, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-            }
-            else {
-                ChessPosition down = new ChessPosition(row-1, column);
-
-                if (board.getPiece(down) == null) {
-                    ChessMove m = new ChessMove(position, down, null);
-                    al.add(m);
-                }
-            }
-
-            // capture check
-            if (row == 2) {
-                ChessPosition leftDown = new ChessPosition(row-1, column-1);
-                ChessPosition rightDown = new ChessPosition(row-1, column+1);
-
-                if (validPawnCheck(leftDown, ChessGame.TeamColor.WHITE)) {
-                    ChessMove m = new ChessMove(position, leftDown, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, leftDown, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, leftDown, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, leftDown, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-                if (validPawnCheck(rightDown, ChessGame.TeamColor.WHITE)) {
-                    ChessMove m = new ChessMove(position, rightDown, ChessPiece.PieceType.KNIGHT);
-                    ChessMove m2 = new ChessMove(position, rightDown, ChessPiece.PieceType.BISHOP);
-                    ChessMove m3 = new ChessMove(position, rightDown, ChessPiece.PieceType.QUEEN);
-                    ChessMove m4 = new ChessMove(position, rightDown, ChessPiece.PieceType.ROOK);
-
-                    al.add(m);
-                    al.add(m2);
-                    al.add(m3);
-                    al.add(m4);
-                }
-            }
-            else {
-                ChessPosition leftDown = new ChessPosition(row-1, column-1);
-                ChessPosition rightDown = new ChessPosition(row-1, column+1);
-
-                if (validPawnCheck(leftDown, ChessGame.TeamColor.WHITE)) {
-                    ChessMove m = new ChessMove(position, leftDown, null);
-                    al.add(m);
-                }
-                if (validPawnCheck(rightDown, ChessGame.TeamColor.WHITE)) {
-                    ChessMove m = new ChessMove(position, rightDown, null);
-                    al.add(m);
-                }
-            }
+            forwardCheck(row, column, al, -1, 7, 2);
+            captureCheck(row, column, al, ChessGame.TeamColor.WHITE, -1, 2);
         }
 
         return al;
+    }
+
+    private void forwardCheck(int row, int col, Collection<ChessMove> al, int rowDif, int startRow, int endRow) {
+        // start row
+        if (row == startRow) {
+            ChessPosition forward = new ChessPosition(row+rowDif, col);
+            ChessPosition doubleForward = new ChessPosition(row+(rowDif*2), col);
+
+            if (board.getPiece(forward) == null) {
+                ChessMove m = new ChessMove(position, forward, null);
+                al.add(m);
+
+                if (board.getPiece(doubleForward) == null) {
+                    ChessMove m2 = new ChessMove(position, doubleForward, null);
+                    al.add(m2);
+                }
+            }
+        }
+        // end row
+        else if (row == endRow) {
+            ChessPosition up = new ChessPosition(row+rowDif, col);
+            promotionForward(up, al);
+        }
+        // average case
+        else {
+            ChessPosition up = new ChessPosition(row+rowDif, col);
+
+            if (board.getPiece(up) == null) {
+                ChessMove m = new ChessMove(position, up, null);
+                al.add(m);
+            }
+        }}
+
+    private void captureCheck(int row, int col, Collection<ChessMove> al, ChessGame.TeamColor c, int rowDif, int endRow) {
+        ChessPosition left = new ChessPosition(row+rowDif, col-1);
+        ChessPosition right = new ChessPosition(row+rowDif, col+1);
+
+        if (row == endRow) {
+            promotionCapture(left, al, c);
+            promotionCapture(right, al, c);
+        }
+        else {
+            if (validPawnCheck(left, c)) {
+                ChessMove m = new ChessMove(position, left, null);
+                al.add(m);
+            }
+            if (validPawnCheck(right, c)) {
+                ChessMove m = new ChessMove(position, right, null);
+                al.add(m);
+            }
+        }
     }
 
     private boolean validPawnCheck(ChessPosition end, ChessGame.TeamColor color) {
@@ -206,7 +94,30 @@ public class PawnMovesCalculator implements PieceMoveCalculator {
             return p != null && p.getTeamColor() == color;
         }
         return false;
-        //checkForValidEnd(rightDown) && board.getPiece(rightDown) != null && board.getPiece(rightDown).getTeamColor() == ChessGame.TeamColor.WHITE
+    }
+
+    private void promotion(ChessPosition pos, Collection<ChessMove> al) {
+        ChessMove m = new ChessMove(position, pos, ChessPiece.PieceType.KNIGHT);
+        ChessMove m2 = new ChessMove(position, pos, ChessPiece.PieceType.BISHOP);
+        ChessMove m3 = new ChessMove(position, pos, ChessPiece.PieceType.QUEEN);
+        ChessMove m4 = new ChessMove(position, pos, ChessPiece.PieceType.ROOK);
+
+        al.add(m);
+        al.add(m2);
+        al.add(m3);
+        al.add(m4);
+    }
+
+    private void promotionForward(ChessPosition pos, Collection<ChessMove> al) {
+        if (board.getPiece(pos) == null) {
+            promotion(pos, al);
+        }
+    }
+
+    private void promotionCapture(ChessPosition pos, Collection<ChessMove> al, ChessGame.TeamColor c) {
+        if (validPawnCheck(pos, c)) {
+            promotion(pos, al);
+        }
     }
 
     private boolean checkForValidEnd(ChessPosition end) {
