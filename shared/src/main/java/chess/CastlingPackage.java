@@ -97,6 +97,29 @@ public class CastlingPackage {
         return false;
     }
 
+    private boolean castlingInCheckChecker(ChessPosition m1, ChessPosition m2, ChessPosition start, ChessPiece p, ChessGame.TeamColor c) {
+        boolean notInCheck = true;
+        ChessBoard move = currentBoard.clone();
+        ChessBoard moveDouble = currentBoard.clone();
+
+        move.addPiece(m1, p);
+        move.addPiece(start, null);
+        moveDouble.addPiece(m2, p);
+        moveDouble.addPiece(start, null);
+
+        if (isInCheck(c)) {
+            notInCheck = false;
+        }
+        currentBoard = move;
+        if (isInCheck(c)) {
+            notInCheck = false;
+        }
+        currentBoard = moveDouble;
+        if (isInCheck(c)) {
+            notInCheck = false;
+        }
+        return notInCheck;
+    }
     /**
      * Checks for a valid castling move on the left side
      * @return null if no valid castle, or a ChessMove with valid castle
@@ -115,38 +138,14 @@ public class CastlingPackage {
 
                 if (leftCastleClear(middleSpace1, middleSpace2, middleSpace3, whiteLeftRookMoved)) {
                     ChessBoard realBoard = currentBoard;
-                    ChessBoard left = currentBoard.clone();
-                    ChessBoard leftLeft = currentBoard.clone();
 
-                    left.addPiece(middleSpace3, piece);
-                    left.addPiece(startPosition, null);
-
-                    leftLeft.addPiece(middleSpace2, piece);
-                    leftLeft.addPiece(startPosition, null);
-
-                    boolean notInCheck = true;
-
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = left;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = leftLeft;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = realBoard;
-
-                    // all conditions are met
-                    if (notInCheck) {
+                    if (castlingInCheckChecker(middleSpace3, middleSpace2, startPosition, piece, color)) {
                         whiteValid = new ChessMove(startPosition, middleSpace2, null);
                     }
+                    currentBoard = realBoard;
                 }
             }
         }
-
         return whiteValid;
     }
 
@@ -164,38 +163,14 @@ public class CastlingPackage {
 
                 if (leftCastleClear(middleSpace1, middleSpace2, middleSpace3, blackLeftRookMoved)) {
                     ChessBoard realBoard = currentBoard;
-                    ChessBoard left = currentBoard.clone();
-                    ChessBoard leftLeft = currentBoard.clone();
 
-                    left.addPiece(middleSpace3, piece);
-                    left.addPiece(startPosition, null);
-
-                    leftLeft.addPiece(middleSpace2, piece);
-                    leftLeft.addPiece(startPosition, null);
-
-                    boolean notInCheck = true;
-
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = left;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = leftLeft;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = realBoard;
-
-                    // all conditions are met
-                    if (notInCheck) {
+                    if (castlingInCheckChecker(middleSpace3, middleSpace2, startPosition, piece, color)) {
                         blackValid = new ChessMove(startPosition, middleSpace2, null);
                     }
+                    currentBoard = realBoard;
                 }
             }
         }
-
         return blackValid;
     }
 
@@ -216,36 +191,12 @@ public class CastlingPackage {
 
                 if (rightCastleClear(middleSpace4, middleSpace5, whiteRightRookMoved)) {
                     ChessBoard realBoard = currentBoard;
-                    ChessBoard right = currentBoard.clone();
-                    ChessBoard rightRight = currentBoard.clone();
 
-                    right.addPiece(middleSpace4, piece);
-                    rightRight.addPiece(startPosition, null);
-
-                    rightRight.addPiece(middleSpace5, piece);
-                    rightRight.addPiece(startPosition, null);
-
-                    boolean notInCheck = true;
-
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = right;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = rightRight;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = realBoard;
-
-                    // all conditions are met
-                    if (notInCheck) {
+                    if (castlingInCheckChecker(middleSpace5, middleSpace4, startPosition, piece, color)) {
                         whiteValid = new ChessMove(startPosition, middleSpace5, null);
                     }
+                    currentBoard = realBoard;
                 }
-
             }
         }
         return whiteValid;
@@ -264,36 +215,12 @@ public class CastlingPackage {
 
                 if (rightCastleClear(middleSpace4, middleSpace5, blackRightRookMoved)) {
                     ChessBoard realBoard = currentBoard;
-                    ChessBoard right = currentBoard.clone();
-                    ChessBoard rightRight = currentBoard.clone();
 
-                    right.addPiece(middleSpace4, piece);
-                    rightRight.addPiece(startPosition, null);
-
-                    rightRight.addPiece(middleSpace5, piece);
-                    rightRight.addPiece(startPosition, null);
-
-                    boolean notInCheck = true;
-
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = right;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = rightRight;
-                    if (isInCheck(color)) {
-                        notInCheck = false;
-                    }
-                    currentBoard = realBoard;
-
-                    // all conditions are met
-                    if (notInCheck) {
+                    if (castlingInCheckChecker(middleSpace5, middleSpace4, startPosition, piece, color)) {
                         blackValid = new ChessMove(startPosition, middleSpace5, null);
                     }
+                    currentBoard = realBoard;
                 }
-
             }
         }
         return blackValid;
