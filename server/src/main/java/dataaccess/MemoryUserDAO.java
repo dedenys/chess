@@ -7,10 +7,11 @@ import java.util.HashMap;
 public class MemoryUserDAO implements UserDAO {
     final private HashMap<String, UserData> users = new HashMap<>();
 
-    public UserData getUser(String username) throws DataAccessException {
-        return users.get(username);
+    public UserData getUser(String username) {
+        UserData user = users.get(username);
+        return user;
     }
-    public UserData createUser(UserData user) throws DataAccessException {
+    public UserData createUser(UserData user) {
         users.put(user.username(), user);
         return user;
     }
