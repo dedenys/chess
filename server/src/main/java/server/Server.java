@@ -39,6 +39,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
         Spark.get("/game", this::listGames);
+        Spark.put("/game", this::joinGame);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -50,6 +51,40 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private Object joinGame(Request req, Response res) {
+        String authToken = req.headers("authorization");
+
+        JoinGameNoAuth body = new Gson().fromJson(req.body(), JoinGameNoAuth.class);
+
+        JoinGameRequest request = new JoinGameRequest(authToken, body.playerColor(), body.gameID());
+
+        JoinGameResult result;
+
+        try {
+            JoinGameService service = new JoinGameService(gameDAO, authDAO);
+            result = service.joinGame(request);
+        }
+        catch(RequestException e) {
+            if (Objects.equals(e.getMessage(), "bad request")) {
+                res.status(400);
+                result = new JoinGameResult("Error: bad request");
+            }
+            else if (Objects.equals(e.getMessage(), "unauthorized")) {
+                res.status(401);
+                result = new JoinGameResult("Error: unauthorized");
+            }
+            else if (Objects.equals(e.getMessage(), "already taken")) {
+                res.status(403);
+                result = new JoinGameResult("Error: already taken");
+            }
+            else {
+                res.status(500);
+                result = new JoinGameResult("Error: server error");
+            }
+        }
+        return new Gson().toJson(result);
     }
 
     private Object listGames(Request req, Response res) {
