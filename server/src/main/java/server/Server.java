@@ -147,7 +147,7 @@ public class Server {
 
     private Object logout(Request req, Response res) {
 
-        LogoutRequest request = new LogoutRequest(req.headers("authorization"));//new Gson().fromJson(req.headers("authorization"), LogoutRequest.class);
+        LogoutRequest request = new LogoutRequest(req.headers("authorization"));
 
         LogoutResult result;
 

@@ -25,9 +25,7 @@ public class JoinGameServiceTests {
 
         CreateGameService gameService = new CreateGameService(GAME_DAO, AUTH_DAO);
         CreateGameRequest gameRequest = new CreateGameRequest(token, "Game1");
-        CreateGameRequest gameRequest2 = new CreateGameRequest(token, "Game2");
         gameService.createGame(gameRequest);
-        gameService.createGame(gameRequest2);
 
     }
 

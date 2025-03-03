@@ -18,7 +18,7 @@ public class ListGamesServiceTests {
 
 
     @BeforeAll
-    public static void createUser() {
+    public static void addGames() {
         RegisterService service = new RegisterService(USER_DAO, AUTH_DAO);
         RegisterRequest request = new RegisterRequest("Bob", "pass123", "bob@gmail.com");
         RegisterResult result = service.register(request);
