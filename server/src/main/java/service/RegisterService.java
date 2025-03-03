@@ -18,7 +18,6 @@ public class RegisterService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws RequestException{
-
         String username = registerRequest.username();
         String password = registerRequest.password();
         String email = registerRequest.email();

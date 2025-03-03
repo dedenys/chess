@@ -2,12 +2,12 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.*;
+import request.LoginRequest;
 import request.RegisterRequest;
 import result.ClearResult;
+import result.LoginResult;
 import result.RegisterResult;
-import service.ClearService;
-import service.RegisterService;
-import service.RequestException;
+import service.*;
 import service.Service;
 import spark.*;
 
@@ -35,6 +35,7 @@ public class Server {
 
         Spark.post("/user", this::registerUser);
         Spark.delete("/db", this::clear);
+        Spark.post("/session", this::login);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -46,6 +47,33 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private Object login(Request req, Response res) {
+        LoginRequest request = new Gson().fromJson(req.body(), LoginRequest.class);
+
+        LoginResult result;
+        try {
+            LoginService service = new LoginService(userDAO, authDAO);
+            result = service.login(request);
+        }
+        catch (RequestException e) {
+            if (Objects.equals(e.getMessage(), "unauthorized")) {
+                res.status(401);
+                result = new LoginResult(null, null, "Error: unauthorized");
+            }
+            else if (Objects.equals(e.getMessage(), "not a valid username")) {
+                res.status(401);
+                result = new LoginResult(null, null, "Error: not a valid username");
+            }
+            else {
+                res.status(500);
+                result = new LoginResult(null, null, "Error: server error");
+            }
+
+        }
+
+        return new Gson().toJson(result);
     }
 
     private Object clear(Request req, Response res) {
