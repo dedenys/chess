@@ -11,4 +11,7 @@ public class MemoryGameDAO implements GameDAO {
     public void clear() {
         games.clear();
     }
+    public int getLength() {
+        return games.size();
+    }
 }
