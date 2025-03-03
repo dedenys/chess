@@ -9,26 +9,25 @@ import org.junit.jupiter.api.Test;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
-import result.RegisterResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class LoginServiceTests {
 
-    private static final UserDAO userDAO = new MemoryUserDAO();
-    private static final AuthDAO authDAO = new MemoryAuthDAO();
+    private static final UserDAO USER_DAO = new MemoryUserDAO();
+    private static final AuthDAO AUTH_DAO = new MemoryAuthDAO();
 
 
     @BeforeAll
     public static void createUser() {
-        RegisterService service = new RegisterService(userDAO, authDAO);
+        RegisterService service = new RegisterService(USER_DAO, AUTH_DAO);
         RegisterRequest request = new RegisterRequest("Bob", "pass123", "bob@gmail.com");
         service.register(request);
     }
 
     @Test
     public void loginValid() {
-        LoginService service = new LoginService(userDAO, authDAO);
+        LoginService service = new LoginService(USER_DAO, AUTH_DAO);
         LoginRequest request = new LoginRequest("Bob", "pass123");
         LoginResult result = service.login(request);
 
@@ -39,7 +38,7 @@ public class LoginServiceTests {
 
     @Test
     public void loginInvalidPassword() {
-        LoginService service = new LoginService(userDAO, authDAO);
+        LoginService service = new LoginService(USER_DAO, AUTH_DAO);
         LoginRequest request = new LoginRequest("Bob", "abc");
 
         RequestException exception = assertThrows(RequestException.class, () -> service.login(request));
@@ -48,7 +47,7 @@ public class LoginServiceTests {
 
     @Test
     public void loginInvalidUsername() {
-        LoginService service = new LoginService(userDAO, authDAO);
+        LoginService service = new LoginService(USER_DAO, AUTH_DAO);
         LoginRequest request = new LoginRequest("Jimmy", "abc");
 
         RequestException exception = assertThrows(RequestException.class, () -> service.login(request));
