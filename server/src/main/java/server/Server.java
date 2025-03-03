@@ -1,14 +1,15 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dataaccess.*;
+import request.CreateGameRequest;
 import request.LoginRequest;
 import request.LogoutRequest;
 import request.RegisterRequest;
-import result.ClearResult;
-import result.LoginResult;
-import result.LogoutResult;
-import result.RegisterResult;
+import result.*;
 import service.*;
 import service.Service;
 import spark.*;
@@ -39,6 +40,7 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.post("/game", this::createGame);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -52,8 +54,43 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object logout(Request req, Response res) {
+    private Object createGame(Request req, Response res) {
+        String authToken = req.headers("authorization");
 
+        String json = req.body();
+        JsonParser parser = new JsonParser();
+        JsonElement jsonElement = parser.parse(json);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+
+        String gameName = jsonObject.get("gameName").getAsString();
+
+
+        CreateGameRequest request = new CreateGameRequest(authToken, gameName);
+        Object result;
+
+        try {
+            CreateGameService service = new CreateGameService(gameDAO,authDAO);
+            result = service.createGame(request);
+        }
+        catch(RequestException e) {
+            if (Objects.equals(e.getMessage(), "unauthorized")) {
+                res.status(401);
+                result = new Object() {String message = "unauthorized";};
+            }
+            else if (Objects.equals(e.getMessage(), "bad request")) {
+                res.status(400);
+                result = new Object() {String message = "bad request";};
+            }
+            else {
+                res.status(500);
+                result = new Object() {String message = "unauthorized";};
+            }
+        }
+
+        return new Gson().toJson(result);
+    }
+
+    private Object logout(Request req, Response res) {
         LogoutRequest request = new LogoutRequest(req.headers("authorization"));//new Gson().fromJson(req.headers("authorization"), LogoutRequest.class);
 
         LogoutResult result;
@@ -104,7 +141,6 @@ public class Server {
     }
 
     private Object clear(Request req, Response res) {
-
         ClearResult result;
 
         try {

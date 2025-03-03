@@ -11,23 +11,22 @@ public class ClearServiceTests {
 
     @Test
     public void clearData() {
-        MemoryUserDAO userDAO = new MemoryUserDAO();
-        MemoryAuthDAO authDAO = new MemoryAuthDAO();
-        MemoryGameDAO gameDAO = new MemoryGameDAO();
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
 
         RegisterService registerService = new RegisterService(userDAO, authDAO);
 
         RegisterRequest request = new RegisterRequest("Bob", "pass123", "bob@gmail.com");
-        registerService.register(request);
-        request = new RegisterRequest("Jimmy", "pass123", "jimmy@gmail.com");
-        registerService.register(request);
+        RegisterResult result = registerService.register(request);
+        RegisterRequest request2 = new RegisterRequest("Jimmy", "pass123", "jimmy@gmail.com");
+        RegisterResult result2 = registerService.register(request2);
 
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         clearService.clear();
 
-        assertEquals(userDAO.getLength(), 0);
-        assertEquals(authDAO.getLength(), 0);
-        assertEquals(gameDAO.getLength(), 0);
+        assertNull(userDAO.getUser(result.username()));
+        assertNull(userDAO.getUser(result2.username()));
 
     }
 }
