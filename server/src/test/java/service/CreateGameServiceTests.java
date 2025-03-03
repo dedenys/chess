@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CreateGameServiceTests {
 
-    private static final MemoryGameDAO gameDAO = new MemoryGameDAO();
+    private static final GameDAO gameDAO = new MemoryGameDAO();
     private static final UserDAO userDAO = new MemoryUserDAO();
     private static final AuthDAO authDAO = new MemoryAuthDAO();
     static String token;
