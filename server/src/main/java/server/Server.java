@@ -3,9 +3,11 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.*;
 import request.LoginRequest;
+import request.LogoutRequest;
 import request.RegisterRequest;
 import result.ClearResult;
 import result.LoginResult;
+import result.LogoutResult;
 import result.RegisterResult;
 import service.*;
 import service.Service;
@@ -36,6 +38,7 @@ public class Server {
         Spark.post("/user", this::registerUser);
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -47,6 +50,30 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    private Object logout(Request req, Response res) {
+
+        LogoutRequest request = new LogoutRequest(req.headers("authorization"));//new Gson().fromJson(req.headers("authorization"), LogoutRequest.class);
+
+        LogoutResult result;
+
+        try {
+            LogoutService service = new LogoutService(authDAO);
+            result = service.logout(request);
+        }
+        catch(Exception e) {
+            if (Objects.equals(e.getMessage(), "unauthorized")) {
+                res.status(401);
+                result = new LogoutResult("Error: unauthorized");
+            }
+            else {
+                res.status(500);
+                result = new LogoutResult("Error: server error");
+            }
+        }
+
+        return new Gson().toJson(result);
     }
 
     private Object login(Request req, Response res) {
