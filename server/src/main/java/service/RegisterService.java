@@ -1,24 +1,23 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import request.RegisterRequest;
 import result.RegisterResult;
 
-public class UserService {
+public class RegisterService {
 
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
 
-    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public RegisterService(UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
+    public RegisterResult register(RegisterRequest registerRequest) throws RequestException{
 
         String username = registerRequest.username();
         String password = registerRequest.password();
@@ -37,12 +36,12 @@ public class UserService {
                 result = new RegisterResult(username, token, null);
             }
             else {
-                result = new RegisterResult(null, null, "Error: already taken");
+                throw new RequestException("already taken");
             }
 
         }
         else {
-            result = new RegisterResult(null, null, "Error: bad request");
+            throw new RequestException("bad request");
         }
 
         return result;

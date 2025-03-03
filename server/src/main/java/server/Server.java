@@ -1,26 +1,28 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
-import model.UserData;
+import dataaccess.*;
 import request.RegisterRequest;
+import result.ClearResult;
 import result.RegisterResult;
-import service.UserService;
+import service.ClearService;
+import service.RegisterService;
+import service.RequestException;
+import service.Service;
 import spark.*;
+
+import java.util.Objects;
 
 public class Server {
 
-    private final UserService userService;
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
 
     public Server() {
         userDAO = new MemoryUserDAO();
         authDAO = new MemoryAuthDAO();
-        userService = new UserService(userDAO, authDAO);
+        gameDAO = new MemoryGameDAO();
 
     }
 
@@ -32,6 +34,7 @@ public class Server {
         // Register your endpoints and handle exceptions here.
 
         Spark.post("/user", this::registerUser);
+        Spark.delete("/db", this::clear);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -45,9 +48,47 @@ public class Server {
         Spark.awaitStop();
     }
 
+    private Object clear(Request req, Response res) {
+
+        ClearResult result;
+
+        try {
+            ClearService service = new ClearService(userDAO, authDAO, gameDAO);
+            service.clear();
+            result = new ClearResult(null);
+        }
+        catch(Exception e) {
+            res.status(500);
+            result = new ClearResult("Error: server error");
+        }
+
+        return new Gson().toJson(result);
+    }
+
     private Object registerUser(Request req, Response res) {
         RegisterRequest request = new Gson().fromJson(req.body(), RegisterRequest.class);
-        RegisterResult result = userService.register(request);
+
+        RegisterResult result;
+        try {
+            RegisterService service = new RegisterService(userDAO, authDAO);
+            result = service.register(request);
+        }
+        catch (RequestException e) {
+            if (Objects.equals(e.getMessage(), "bad request")) {
+                res.status(400);
+                result = new RegisterResult(null, null, "Error: bad request");
+            }
+            else if (Objects.equals(e.getMessage(), "already taken")) {
+                res.status(403);
+                result = new RegisterResult(null, null, "Error: already taken");
+            }
+            else {
+                res.status(500);
+                result = new RegisterResult(null, null, "Error: server error");
+            }
+
+        }
+
         return new Gson().toJson(result);
     }
 }
