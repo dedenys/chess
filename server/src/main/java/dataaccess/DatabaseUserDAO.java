@@ -11,6 +11,10 @@ import static java.sql.Types.NULL;
 public class DatabaseUserDAO implements UserDAO {
     final private HashMap<String, UserData> users = new HashMap<>();
 
+    public DatabaseUserDAO() throws Exception {
+        configureDatabase();
+    }
+
     public UserData getUser(String username) {
         UserData user = users.get(username);
         return user;
