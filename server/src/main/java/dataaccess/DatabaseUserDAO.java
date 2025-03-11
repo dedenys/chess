@@ -1,5 +1,6 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.UserData;
 
 import java.sql.SQLException;
@@ -9,7 +10,7 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class DatabaseUserDAO implements UserDAO {
-    final private HashMap<String, UserData> users = new HashMap<>();
+    //final private HashMap<String, UserData> users = new HashMap<>();
 
     public DatabaseUserDAO() throws Exception {
         configureDatabase();
@@ -20,8 +21,12 @@ public class DatabaseUserDAO implements UserDAO {
         return user;
     }
     public UserData createUser(UserData user) {
-        users.put(user.username(), user);
-        return user;
+        //users.put(user.username(), user);
+        //return user;
+        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        var json = new Gson().toJson(user);
+        var id = executeUpdate(statement, user.username(), user.password(), user.email(), json);
+        return new UserData(user.username(), user.password(), user.email());
     }
     public void clear() {
         users.clear();
