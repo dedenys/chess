@@ -10,10 +10,16 @@ import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class DatabaseUserDAO implements UserDAO {
-    //final private HashMap<String, UserData> users = new HashMap<>();
+    final private HashMap<String, UserData> users = new HashMap<>();
 
-    public DatabaseUserDAO() throws Exception {
-        configureDatabase();
+    public DatabaseUserDAO() {
+        try {
+            configureDatabase();
+            System.out.println("test");
+        }
+        catch (Exception e) {
+            System.out.println("test2");
+        }
     }
 
     public UserData getUser(String username) {
@@ -21,12 +27,15 @@ public class DatabaseUserDAO implements UserDAO {
         return user;
     }
     public UserData createUser(UserData user) {
-        //users.put(user.username(), user);
-        //return user;
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        var json = new Gson().toJson(user);
-        var id = executeUpdate(statement, user.username(), user.password(), user.email(), json);
-        return new UserData(user.username(), user.password(), user.email());
+        try {
+            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            var json = new Gson().toJson(user);
+            var id = executeUpdate(statement, user.username(), user.password(), user.email(), json);
+            return new UserData(user.username(), user.password(), user.email());
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
     public void clear() {
         users.clear();
@@ -40,10 +49,9 @@ public class DatabaseUserDAO implements UserDAO {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    //if (param instanceof String p) ps.setString(i + 1, p);
-                    //else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    //else if (param instanceof PetType p) ps.setString(i + 1, p.toString());
-                    //else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
 
@@ -54,8 +62,8 @@ public class DatabaseUserDAO implements UserDAO {
 
                 return 0;
             }
-        } catch (SQLException e) {
-            throw new Exception(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (Exception e) {
+           throw new Exception(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
