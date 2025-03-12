@@ -15,10 +15,8 @@ public class DatabaseUserDAO implements UserDAO {
     public DatabaseUserDAO() {
         try {
             configureDatabase();
-            System.out.println("test");
         }
         catch (Exception e) {
-            System.out.println("test2");
         }
     }
 
@@ -28,12 +26,14 @@ public class DatabaseUserDAO implements UserDAO {
     }
     public UserData createUser(UserData user) {
         try {
-            var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
             var json = new Gson().toJson(user);
             var id = executeUpdate(statement, user.username(), user.password(), user.email(), json);
+            System.out.println("a");
             return new UserData(user.username(), user.password(), user.email());
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -74,6 +74,7 @@ public class DatabaseUserDAO implements UserDAO {
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`id`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
