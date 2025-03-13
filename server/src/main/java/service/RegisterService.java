@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.RegisterRequest;
 import result.RegisterResult;
 
@@ -26,7 +27,8 @@ public class RegisterService {
 
         if (username != null && password != null && email != null) { // check for bad request
             if(userDAO.getUser(username) == null) { // make sure user is not already there
-                UserData newUser = new UserData(username, password, email);
+                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                UserData newUser = new UserData(username, hashedPassword, email);
                 userDAO.createUser(newUser);
 
                 String token = TokenGenerator.generateToken();

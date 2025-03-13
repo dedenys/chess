@@ -18,11 +18,9 @@ public class DatabaseGameDAO implements GameDAO {
 
     public DatabaseGameDAO() {
         try {
-            System.out.println("WORKED");
             configureDatabase();
         }
         catch (Exception e) {
-            System.out.println("FAILED");
         }
     }
 

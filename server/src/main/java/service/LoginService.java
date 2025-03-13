@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import result.LoginResult;
 
@@ -27,7 +28,7 @@ public class LoginService {
         LoginResult result;
 
         if (user != null) {
-            if (Objects.equals(user.password(), password)) { // check for valid password
+            if (BCrypt.checkpw(password, user.password())) { // check for valid password
                 String token = TokenGenerator.generateToken();
                 AuthData auth = new AuthData(token, username);
                 authDAO.createAuth(auth);
