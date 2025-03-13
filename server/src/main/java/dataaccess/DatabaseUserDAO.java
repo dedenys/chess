@@ -63,9 +63,15 @@ public class DatabaseUserDAO implements UserDAO {
             try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    }
+                    else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    }
+                    else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
                 }
                 ps.executeUpdate();
 
@@ -81,7 +87,7 @@ public class DatabaseUserDAO implements UserDAO {
         }
     }
 
-    private final String[] createStatements = {
+    private final String[] createStatementsUser = {
             """
             CREATE TABLE IF NOT EXISTS  user (
               `username` varchar(256) NOT NULL,
@@ -97,7 +103,7 @@ public class DatabaseUserDAO implements UserDAO {
     private void configureDatabase() throws Exception {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
+            for (var statement : createStatementsUser) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
