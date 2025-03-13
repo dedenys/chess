@@ -32,7 +32,6 @@ public class JoinGameService {
             if (auth != null) { // authorize
                 String username = auth.username();
                 GameData game = gameDAO.getGame(id);
-                System.out.println(game);
                 if (game != null) {
                     if (teamColor.equals("BLACK") && game.blackUsername() == null) {
                         gameDAO.addBlackUserToGame(id, username);
