@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -21,8 +22,21 @@ public class DatabaseUserDAO implements UserDAO {
     }
 
     public UserData getUser(String username) {
-        UserData user = users.get(username);
-        return user;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, json FROM user WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+        return null;
     }
     public UserData createUser(UserData user) {
         try {
@@ -38,7 +52,13 @@ public class DatabaseUserDAO implements UserDAO {
         }
     }
     public void clear() {
-        users.clear();
+        var statement = "TRUNCATE user";
+        try {
+            executeUpdate(statement);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
     public int getLength() {
         return users.size();
@@ -70,12 +90,11 @@ public class DatabaseUserDAO implements UserDAO {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  user (
-              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`id`),
+              PRIMARY KEY (`username`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -92,6 +111,13 @@ public class DatabaseUserDAO implements UserDAO {
         } catch (Exception ex) {
             throw new Exception(String.format("Unable to configure database: %s", ex.getMessage()));
         }
+    }
+
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var json = rs.getString("json");
+        var user = new Gson().fromJson(json, UserData.class);
+        return user;
     }
 
 }
