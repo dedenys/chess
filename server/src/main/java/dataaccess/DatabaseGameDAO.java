@@ -46,7 +46,7 @@ public class DatabaseGameDAO implements GameDAO {
         try {
             var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, json) VALUES (?, ?, ?, ?)";
             var json = new Gson().toJson(game);
-            var id = executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), json);
+            var id = DataBaseHelperFunctions.executeUpdate(statement, game.whiteUsername(), game.blackUsername(), game.gameName(), json);
             return new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
         }
         catch (Exception e) {
@@ -119,39 +119,10 @@ public class DatabaseGameDAO implements GameDAO {
     public void clear() {
         var statement = "TRUNCATE game";
         try {
-            executeUpdate(statement);
+            DataBaseHelperFunctions.executeUpdate(statement);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws Exception {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    }
-                    else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (Exception e) {
-            throw new Exception(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
