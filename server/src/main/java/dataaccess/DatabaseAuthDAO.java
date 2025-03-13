@@ -22,13 +22,13 @@ public class DatabaseAuthDAO implements AuthDAO{
 
     public AuthData getAuth(String authToken) {
         try (var conn = DatabaseManager.getConnection()) {
-            System.out.println("A");
+            //System.out.println("A");
             var statement = "SELECT token, json FROM auth WHERE token=?";
             try (var ps = conn.prepareStatement(statement)) {
-                System.out.println("B");
+                //System.out.println("B");
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
-                    System.out.println("C");
+                    //System.out.println("C");
                     if (rs.next()) {
                         return readAuth(rs);
                     }
