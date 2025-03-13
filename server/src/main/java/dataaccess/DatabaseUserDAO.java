@@ -5,13 +5,11 @@ import model.UserData;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
 public class DatabaseUserDAO implements UserDAO {
-    final private HashMap<String, UserData> users = new HashMap<>();
 
     public DatabaseUserDAO() {
         try {
@@ -43,7 +41,6 @@ public class DatabaseUserDAO implements UserDAO {
             var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
             var json = new Gson().toJson(user);
             var id = executeUpdate(statement, user.username(), user.password(), user.email(), json);
-            System.out.println("a");
             return new UserData(user.username(), user.password(), user.email());
         }
         catch (Exception e) {
@@ -59,9 +56,6 @@ public class DatabaseUserDAO implements UserDAO {
         catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-    public int getLength() {
-        return users.size();
     }
 
     private int executeUpdate(String statement, Object... params) throws Exception {
