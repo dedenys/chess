@@ -1,6 +1,6 @@
 package client;
 
-public class ChessClient {
+public class PreloginClient {
 
     public String help() {
             return """
