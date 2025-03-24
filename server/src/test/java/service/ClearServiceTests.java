@@ -2,9 +2,8 @@ package service;
 
 import dataaccess.*;
 import org.junit.jupiter.api.Test;
-import request.RegisterRequest;
-import result.ClearResult;
-import result.RegisterResult;
+import model.request.RegisterRequest;
+import model.result.RegisterResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClearServiceTests {

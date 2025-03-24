@@ -3,9 +3,8 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.GameData;
-import request.ListGamesRequest;
-import result.ListGamesResult;
-import result.LogoutResult;
+import model.request.ListGamesRequest;
+import model.result.ListGamesResult;
 
 import java.util.Collection;
 

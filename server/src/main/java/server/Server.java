@@ -5,8 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dataaccess.*;
-import request.*;
-import result.*;
+import model.request.*;
+import model.result.*;
 import service.*;
 import spark.*;
 

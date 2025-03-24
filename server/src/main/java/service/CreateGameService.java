@@ -4,8 +4,8 @@ import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import model.GameData;
-import request.CreateGameRequest;
-import result.CreateGameResult;
+import model.request.CreateGameRequest;
+import model.result.CreateGameResult;
 
 public class CreateGameService {
 

@@ -6,11 +6,11 @@ import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import request.LoginRequest;
-import request.LogoutRequest;
-import request.RegisterRequest;
-import result.LoginResult;
-import result.LogoutResult;
+import model.request.LoginRequest;
+import model.request.LogoutRequest;
+import model.request.RegisterRequest;
+import model.result.LoginResult;
+import model.result.LogoutResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -5,8 +5,8 @@ import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import org.junit.jupiter.api.*;
-import request.RegisterRequest;
-import result.RegisterResult;
+import model.request.RegisterRequest;
+import model.result.RegisterResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RegisterServiceTests {

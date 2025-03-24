@@ -3,6 +3,10 @@ package server;
 import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
+import model.request.LoginRequest;
+import model.request.RegisterRequest;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,14 +25,14 @@ public class ServerFacade {
     }
 
 
-    public UserData register(UserData user) throws Exception {
+    public RegisterResult register(RegisterRequest request) throws Exception {
         var path = "/user";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, request, RegisterResult.class);
     }
 
-    public UserData login(UserData user) throws Exception {
+    public LoginResult login(LoginRequest request) throws Exception {
         var path = "/session";
-        return this.makeRequest("POST", path, user, UserData.class);
+        return this.makeRequest("POST", path, request, LoginResult.class);
     }
 
     public UserData logout(UserData user) throws Exception {
