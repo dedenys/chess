@@ -30,6 +30,12 @@ public class Repl {
         while (!result.equals("quit")) {
             if (preLoginClient.state == State.LOGGEDIN) {
                 state = State.LOGGEDIN;
+                loggedinClient.state = State.LOGGEDIN;
+                loggedinClient.auth = preLoginClient.auth;
+            }
+            if (loggedinClient.state == State.PRELOGIN) {
+                state = State.PRELOGIN;
+                preLoginClient.state = State.PRELOGIN;
             }
 
             printPrompt();

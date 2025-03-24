@@ -3,6 +3,8 @@ package client;
 import model.UserData;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -13,6 +15,7 @@ public class PreloginClient {
     private final ServerFacade server;
     private final String serverUrl;
     public State state = State.PRELOGIN;
+    public String auth = null;
 
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -51,7 +54,8 @@ public class PreloginClient {
             String pass = params[1];
             String email = params[2];
             RegisterRequest request = new RegisterRequest(userName, pass, email);
-            server.register(request);
+            RegisterResult r = server.register(request);
+            auth = r.authToken();
             return String.format("You signed in as %s.", userName);
         }
         throw new Exception("Expected: <yourname>");
@@ -63,7 +67,8 @@ public class PreloginClient {
             userName = params[0];
             String pass = params[1];
             LoginRequest request = new LoginRequest(userName, pass);
-            server.login(request);
+            LoginResult r = server.login(request);
+            auth = r.authToken();
             return String.format("You logged in as %s.", userName);
         }
         throw new Exception("Expected: <yourname> <password>");

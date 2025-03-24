@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
 import model.request.LoginRequest;
+import model.request.LogoutRequest;
 import model.request.RegisterRequest;
 import model.result.LoginResult;
+import model.result.LogoutResult;
 import model.result.RegisterResult;
 
 import java.io.IOException;
@@ -35,9 +37,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, request, LoginResult.class);
     }
 
-    public UserData logout(UserData user) throws Exception {
+    public LogoutResult logout(LogoutRequest request) throws Exception {
         var path = "/session";
-        return this.makeRequest("DELETE", path, user, UserData.class);
+        return this.makeRequest("DELETE", path, request, LogoutResult.class);
     }
 
     public GameData createGame(GameData game) throws Exception {
