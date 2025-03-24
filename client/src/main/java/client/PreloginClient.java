@@ -12,7 +12,7 @@ public class PreloginClient {
     private String userName = null;
     private final ServerFacade server;
     private final String serverUrl;
-    private State state = State.PRELOGIN;
+    public State state = State.PRELOGIN;
 
     public PreloginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
