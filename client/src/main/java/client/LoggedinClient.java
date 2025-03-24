@@ -16,9 +16,10 @@ public class LoggedinClient {
     public String help() {
         return """
                     - help
-                    - register <yourname>
-                    - login <yourname>
-                    - play game
+                    - logout
+                    - create <gamename>
+                    - list
+                    - observe
                     - quit
                     """;
     }

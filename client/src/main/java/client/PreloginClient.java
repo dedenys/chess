@@ -22,8 +22,8 @@ public class PreloginClient {
     public String help() {
             return """
                     - help
-                    - register <yourname>
-                    - login <yourname>
+                    - register <yourname> <password> <email>
+                    - login <yourname> <password>
                     - quit
                     """;
     }
@@ -35,6 +35,7 @@ public class PreloginClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
+                case "login" -> login(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -63,8 +64,8 @@ public class PreloginClient {
             String pass = params[1];
             LoginRequest request = new LoginRequest(userName, pass);
             server.login(request);
-            return String.format("You signed in as %s.", userName);
+            return String.format("You logged in as %s.", userName);
         }
-        throw new Exception("Expected: <yourname>");
+        throw new Exception("Expected: <yourname> <password>");
     }
 }
