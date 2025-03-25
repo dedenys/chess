@@ -16,6 +16,7 @@ import java.util.Random;
 import static ui.EscapeSequences.*;
 
 public class GameClient {
+    public static boolean isLeaving = false;
     private final String serverUrl;
     private final ServerFacade server;
     public GameData gameData;
@@ -62,7 +63,8 @@ public class GameClient {
     public String help() {
         return """
                     - help
-                    - do something
+                    - view board
+                    - leave game
                     """;
     }
 
@@ -73,12 +75,19 @@ public class GameClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "quit" -> "quit";
-                case "do" -> test();
+                case "leave" -> leave();
+                case "view" -> test();
                 default -> help();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    public String leave() {
+        isLeaving = true;
+
+        return  String.format("You left the game");
     }
 
     public String test() {

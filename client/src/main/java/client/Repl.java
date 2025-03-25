@@ -13,7 +13,7 @@ public class Repl {
     private final PreloginClient preLoginClient;
     private final LoggedinClient loggedinClient;
     private final GameClient gameClient;
-    private State state = State.GAME;
+    private State state = State.PRELOGIN;
     private GameData game = null;
 
 
@@ -49,7 +49,13 @@ public class Repl {
                 game = loggedinClient.game;
                 gameClient.gameData = game;
                 gameClient.game = game.game();
+                gameClient.color = loggedinClient.color;
                 loggedinClient.state = State.LOGGEDIN;
+            }
+            if (GameClient.isLeaving) {
+                state = State.LOGGEDIN;
+                GameClient.isLeaving = false;
+
             }
 
             printPrompt();

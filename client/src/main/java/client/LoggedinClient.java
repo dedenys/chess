@@ -20,6 +20,7 @@ public class LoggedinClient {
     public String auth = null;
     public GameData game = null;
     private GameData[] availableGames;
+    public static String color;
 
 
     public LoggedinClient(String serverUrl) {
@@ -70,13 +71,14 @@ public class LoggedinClient {
     public String play(String... params) throws Exception {
         if (params.length >= 2) {
             String id = params[0];
-            String color = params[1].toUpperCase();
+            String colorToBe = params[1].toUpperCase();
 
-            JoinGameRequest request = new JoinGameRequest(auth, color, Integer.parseInt(id));
+            JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
             JoinGameResult r = server.joinGame(request, auth);
             state = State.GAME;
             game = availableGames[Integer.parseInt(id)-1];
+            color = colorToBe;
             return String.format("You joined game:  %s.", id);
         }
         throw new Exception("Expected: <gamename>");
