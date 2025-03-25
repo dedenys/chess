@@ -1,14 +1,8 @@
 package client;
 
 import model.GameData;
-import model.request.CreateGameRequest;
-import model.request.JoinGameRequest;
-import model.request.LoginRequest;
-import model.request.RegisterRequest;
-import model.result.CreateGameResult;
-import model.result.JoinGameResult;
-import model.result.LoginResult;
-import model.result.RegisterResult;
+import model.request.*;
+import model.result.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -108,6 +102,59 @@ public class ServerFacadeTests {
         }
         catch(Exception e) {
 
+        }
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void logoutValidTest() {
+
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+        RegisterRequest newRequest = new RegisterRequest("newuser", "pass", "email");
+        LogoutResult result = null;
+
+
+        try {
+            serverFacade.clear();
+            RegisterResult r = serverFacade.register(newRequest);
+            String auth = r.authToken();
+
+            LogoutRequest logoutRequest = new LogoutRequest(auth);
+            result = serverFacade.logout(logoutRequest);
+
+
+        }
+        catch(Exception e) {
+            System.out.println(e);
+        }
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void logoutInvalidTest() {
+
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+        RegisterRequest newRequest = new RegisterRequest("newuser", "pass", "email");
+        LogoutResult result = null;
+
+
+        try {
+            serverFacade.clear();
+            RegisterResult r = serverFacade.register(newRequest);
+
+            LogoutRequest logoutRequest = new LogoutRequest("badauth");
+            result = serverFacade.logout(logoutRequest);
+
+
+        }
+        catch(Exception e) {
+            System.out.println(e);
         }
         Assertions.assertNull(result);
     }
