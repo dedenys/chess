@@ -365,14 +365,10 @@ public class ServerFacadeTests {
         System.out.println(url);
         ServerFacade serverFacade;
         serverFacade = new ServerFacade(url);
-        RegisterRequest newRequest = new RegisterRequest("newuser", "pass", "email");
-        RegisterResult result = null;
 
         LoginRequest loginRequest = new LoginRequest("newuser", "pass");
         LoginResult resultLogin = null;
         try {
-            serverFacade.clear();
-            result = serverFacade.register(newRequest);
             serverFacade.clear();
             resultLogin = serverFacade.login(loginRequest);
         }
