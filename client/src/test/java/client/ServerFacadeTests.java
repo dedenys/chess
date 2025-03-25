@@ -61,7 +61,7 @@ public class ServerFacadeTests {
         System.out.println(url);
         ServerFacade serverFacade;
         serverFacade = new ServerFacade(url);
-        RegisterRequest newRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterRequest newRequest = new RegisterRequest("newuser", "pass",  null);
         RegisterResult result = null;
         try {
             result = serverFacade.register(newRequest);
@@ -288,7 +288,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void clearTest() {
+    public void clearValidTest() {
 
         String url = "http://localhost:"+String.valueOf(port);
         System.out.println(url);
@@ -309,6 +309,30 @@ public class ServerFacadeTests {
             System.out.println(e);
         }
         Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void clearInvalidTest() {
+
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+        RegisterRequest newRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult result = null;
+
+        LoginRequest loginRequest = new LoginRequest("newuser", "pass");
+        LoginResult resultLogin = null;
+        try {
+            serverFacade.clear();
+            result = serverFacade.register(newRequest);
+            serverFacade.clear();
+            resultLogin = serverFacade.login(loginRequest);
+        }
+        catch(Exception e) {
+            System.out.println(e);
+        }
+        Assertions.assertNull(resultLogin);
     }
 
 
