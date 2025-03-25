@@ -50,6 +50,7 @@ public class LoggedinClient {
                 case "logout" -> logout();
                 case "create" -> create(params);
                 case "play" -> play(params);
+                case "observe" -> observe(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -81,7 +82,22 @@ public class LoggedinClient {
             color = colorToBe;
             return String.format("You joined game:  %s.", id);
         }
-        throw new Exception("Expected: <gamename>");
+        throw new Exception("Expected: <gamename> <teamcolor>");
+    }
+
+    public String observe(String... params) throws Exception {
+        if (params.length >= 1) {
+            String id = params[0];
+
+            //JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
+
+            //JoinGameResult r = server.joinGame(request, auth);
+            state = State.GAME;
+            game = availableGames[Integer.parseInt(id)-1];
+            color = "WHITE";
+            return String.format("You are observing game:  %s.", id);
+        }
+        throw new Exception("Expected: <gamenumber>");
     }
 
     public String create(String... params) throws Exception {
@@ -103,8 +119,13 @@ public class LoggedinClient {
         availableGames = games.toArray(new GameData[games.size()]);
         var result = new StringBuilder();
         var gson = new Gson();
+        int counter = 1;
         for (var game : games) {
-            result.append(gson.toJson(game)).append('\n');
+            String whiteuser = game.whiteUsername();
+            String blackuser = game.blackUsername();
+            String thisGame = String.format("%s. Name: %s   BLACK: %s    WHITE: %s  \n", counter, game.gameName(), blackuser, whiteuser);
+            result.append(thisGame);
+            counter += 1;
         }
         return result.toString();
     }

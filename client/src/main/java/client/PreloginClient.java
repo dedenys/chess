@@ -49,25 +49,27 @@ public class PreloginClient {
 
     public String register(String... params) throws Exception {
         if (params.length >= 3) {
-            state = State.LOGGEDIN;
             userName = params[0];
             String pass = params[1];
             String email = params[2];
             RegisterRequest request = new RegisterRequest(userName, pass, email);
             RegisterResult r = server.register(request);
             auth = r.authToken();
+            state = State.LOGGEDIN;
             return String.format("You signed in as %s.", userName);
         }
         throw new Exception("Expected: <yourname>");
     }
 
     public String login(String... params) throws Exception {
-        if (params.length >= 2) {
-            state = State.LOGGEDIN;
+        if (params.length == 2) {
+
             userName = params[0];
             String pass = params[1];
             LoginRequest request = new LoginRequest(userName, pass);
             LoginResult r = server.login(request);
+            //System.out.println(r);
+            state = State.LOGGEDIN;
             auth = r.authToken();
             return String.format("You logged in as %s.", userName);
         }

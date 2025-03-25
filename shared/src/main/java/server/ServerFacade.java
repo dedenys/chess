@@ -25,8 +25,8 @@ public class ServerFacade {
 
 
     public RegisterResult register(RegisterRequest request) throws Exception {
-        var path = "/user";
-        return this.makeRequest("register", "POST", path, request, RegisterResult.class, null);
+            var path = "/user";
+            return this.makeRequest("register", "POST", path, request, RegisterResult.class, null);
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
@@ -116,7 +116,19 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    throw new Exception("not successful :(");
+                    if (String.valueOf(status).equals("403")) {
+                        throw new Exception("Already taken.");
+                    }
+                    if (String.valueOf(status).equals("401")) {
+                        throw new Exception("Invalid username or password.");
+                    }
+                    if (String.valueOf(status).equals("400")) {
+                        throw new Exception("Invalid input.");
+                    }
+                    if (String.valueOf(status).equals("500")) {
+                        throw new Exception("Invalid input.");
+                    }
+                    throw new Exception(String.valueOf(status));
                 }
             }
 
