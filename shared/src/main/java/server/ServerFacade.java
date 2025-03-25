@@ -3,14 +3,8 @@ package server;
 import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
-import model.request.ListGamesRequest;
-import model.request.LoginRequest;
-import model.request.LogoutRequest;
-import model.request.RegisterRequest;
-import model.result.ListGamesResult;
-import model.result.LoginResult;
-import model.result.LogoutResult;
-import model.result.RegisterResult;
+import model.request.*;
+import model.result.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,49 +26,58 @@ public class ServerFacade {
 
     public RegisterResult register(RegisterRequest request) throws Exception {
         var path = "/user";
-        return this.makeRequest("POST", path, request, RegisterResult.class);
+        return this.makeRequest("register", "POST", path, request, RegisterResult.class, null);
     }
 
     public LoginResult login(LoginRequest request) throws Exception {
         var path = "/session";
-        return this.makeRequest("POST", path, request, LoginResult.class);
+        return this.makeRequest("login","POST", path, request, LoginResult.class, null);
     }
 
     public LogoutResult logout(LogoutRequest request) throws Exception {
         var path = "/session";
-        return this.makeRequest("DELETE", path, request, LogoutResult.class);
+        return this.makeRequest("logout", "DELETE", path, request, LogoutResult.class, null);
     }
 
-    public GameData createGame(GameData game) throws Exception {
+    public CreateGameResult createGame(CreateGameRequest request, String auth) throws Exception {
         var path = "/game";
-        return this.makeRequest("POST", path, game, GameData.class);
+        return this.makeRequest("create", "POST", path, request, CreateGameResult.class, auth);
     }
 
     public GameData joinGame(GameData game) throws Exception {
         var path = "/game";
-        return this.makeRequest("PUT", path, game, GameData.class);
+        return this.makeRequest("join", "PUT", path, game, GameData.class, null);
     }
 
-    public Collection<GameData> listGames(ListGamesRequest request) throws Exception {
+    public Collection<GameData> listGames(String auth) throws Exception {
         var path = "/game";
-        ListGamesResult result = this.makeRequest("GET", path, request, ListGamesResult.class);
+        ListGamesResult result = this.makeRequest("list", "GET", path, null, ListGamesResult.class, auth);
         return result.games();
     }
 
     public void clear() throws Exception {
         var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("clear", "DELETE", path, null, null, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
+    private <T> T makeRequest(String name, String method, String path, Object request, Class<T> responseClass, String auth) throws Exception {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
+
+            if (auth != null) {
+                http.addRequestProperty("authorization", auth);
+            }
+
             http.setDoOutput(true);
 
+            //var s = http.getResponseCode();
+
             writeBody(request, http);
+            //s = http.getResponseCode();
             http.connect();
+            //s = http.getResponseCode();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
@@ -89,13 +92,18 @@ public class ServerFacade {
                 http.addRequestProperty("authorization", ((LogoutRequest) request).authToken());
             }
             else if (request instanceof ListGamesRequest) {
-                http.addRequestProperty("authorization", ((ListGamesRequest) request).authToken());
+                //http.addRequestProperty("authorization", ((ListGamesRequest) request).authToken());
                 http.addRequestProperty("Content-Type", "application/json");
             }
+            //else if (request instanceof CreateGameRequest) {
+
+            //}
             else {
                 http.addRequestProperty("Content-Type", "application/json");
             }
+            //System.out.println(request);
             String reqData = new Gson().toJson(request);
+            //System.out.println(reqData);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }

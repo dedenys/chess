@@ -2,10 +2,13 @@ package client;
 
 import com.google.gson.Gson;
 import model.GameData;
+import model.request.CreateGameRequest;
 import model.request.ListGamesRequest;
 import model.request.LogoutRequest;
 import model.request.RegisterRequest;
+import model.result.CreateGameResult;
 import model.result.ListGamesResult;
+import model.result.RegisterResult;
 import server.ServerFacade;
 
 import java.util.Arrays;
@@ -28,6 +31,7 @@ public class LoggedinClient {
                     - help
                     - logout
                     - create <gamename>
+                    - play
                     - list
                     - observe
                     - quit
@@ -42,6 +46,7 @@ public class LoggedinClient {
             return switch (cmd) {
                 case "list" -> list();
                 case "logout" -> logout();
+                case "create" -> create(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -60,13 +65,26 @@ public class LoggedinClient {
         //throw new Exception("Expected: <yourname>");
     }
 
+    public String create(String... params) throws Exception {
+        if (params.length >= 1) {
+            String name = params[0];
+
+            CreateGameRequest request = new CreateGameRequest(auth, name);
+
+
+            CreateGameResult r = server.createGame(request, auth);
+            return String.format("You created game:  %s.", name);
+        }
+        throw new Exception("Expected: <gamename>");
+    }
+
     public String list() throws Exception {
         ListGamesRequest request = new ListGamesRequest(auth);
-        Collection<GameData> games = server.listGames(request);
+        Collection<GameData> games = server.listGames(auth);
         var result = new StringBuilder();
         var gson = new Gson();
         for (var game : games) {
-            result.append(gson.toJson(games)).append('\n');
+            result.append(gson.toJson(game)).append('\n');
         }
         return result.toString();
     }
