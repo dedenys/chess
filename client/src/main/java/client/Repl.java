@@ -1,5 +1,7 @@
 package client;
 
+import chess.ChessGame;
+import model.GameData;
 import model.result.LoginResult;
 
 import java.util.Scanner;
@@ -12,6 +14,7 @@ public class Repl {
     private final LoggedinClient loggedinClient;
     private final GameClient gameClient;
     private State state = State.PRELOGIN;
+    private GameData game = null;
 
     public Repl(String serverUrl) {
         preLoginClient = new PreloginClient(serverUrl);
@@ -37,6 +40,12 @@ public class Repl {
             if (loggedinClient.state == State.PRELOGIN) {
                 state = State.PRELOGIN;
                 preLoginClient.state = State.PRELOGIN;
+                loggedinClient.state = State.LOGGEDIN;
+            }
+            if (loggedinClient.state == State.GAME) {
+                state = State.GAME;
+                game = loggedinClient.game;
+                gameClient.game = game;
                 loggedinClient.state = State.LOGGEDIN;
             }
 

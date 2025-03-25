@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import model.request.*;
@@ -17,6 +18,8 @@ public class LoggedinClient {
     private final ServerFacade server;
     public State state = State.LOGGEDIN;
     public String auth = null;
+    public GameData game = null;
+    private GameData[] availableGames;
 
 
     public LoggedinClient(String serverUrl) {
@@ -72,6 +75,8 @@ public class LoggedinClient {
             JoinGameRequest request = new JoinGameRequest(auth, color, Integer.parseInt(id));
 
             JoinGameResult r = server.joinGame(request, auth);
+            state = State.GAME;
+            game = availableGames[Integer.parseInt(id)-1];
             return String.format("You joined game:  %s.", id);
         }
         throw new Exception("Expected: <gamename>");
@@ -93,6 +98,7 @@ public class LoggedinClient {
     public String list() throws Exception {
         ListGamesRequest request = new ListGamesRequest(auth);
         Collection<GameData> games = server.listGames(auth);
+        availableGames = games.toArray(new GameData[games.size()]);
         var result = new StringBuilder();
         var gson = new Gson();
         for (var game : games) {

@@ -46,6 +46,7 @@ public class ServerFacade {
 
     public JoinGameResult joinGame(JoinGameRequest game, String auth) throws Exception {
         var path = "/game";
+        //JoinGameResult result =
         return this.makeRequest("join", "PUT", path, game, JoinGameResult.class, auth);
     }
 
