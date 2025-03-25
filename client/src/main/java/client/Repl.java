@@ -13,8 +13,10 @@ public class Repl {
     private final PreloginClient preLoginClient;
     private final LoggedinClient loggedinClient;
     private final GameClient gameClient;
-    private State state = State.PRELOGIN;
+    private State state = State.GAME;
     private GameData game = null;
+
+
 
     public Repl(String serverUrl) {
         preLoginClient = new PreloginClient(serverUrl);
@@ -45,7 +47,8 @@ public class Repl {
             if (loggedinClient.state == State.GAME) {
                 state = State.GAME;
                 game = loggedinClient.game;
-                gameClient.game = game;
+                gameClient.gameData = game;
+                gameClient.game = game.game();
                 loggedinClient.state = State.LOGGEDIN;
             }
 
