@@ -44,9 +44,9 @@ public class ServerFacade {
         return this.makeRequest("create", "POST", path, request, CreateGameResult.class, auth);
     }
 
-    public GameData joinGame(GameData game) throws Exception {
+    public JoinGameResult joinGame(JoinGameRequest game, String auth) throws Exception {
         var path = "/game";
-        return this.makeRequest("join", "PUT", path, game, GameData.class, null);
+        return this.makeRequest("join", "PUT", path, game, JoinGameResult.class, auth);
     }
 
     public Collection<GameData> listGames(String auth) throws Exception {

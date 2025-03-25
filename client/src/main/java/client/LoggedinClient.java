@@ -2,11 +2,9 @@ package client;
 
 import com.google.gson.Gson;
 import model.GameData;
-import model.request.CreateGameRequest;
-import model.request.ListGamesRequest;
-import model.request.LogoutRequest;
-import model.request.RegisterRequest;
+import model.request.*;
 import model.result.CreateGameResult;
+import model.result.JoinGameResult;
 import model.result.ListGamesResult;
 import model.result.RegisterResult;
 import server.ServerFacade;
@@ -47,6 +45,7 @@ public class LoggedinClient {
                 case "list" -> list();
                 case "logout" -> logout();
                 case "create" -> create(params);
+                case "play" -> play(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -63,6 +62,19 @@ public class LoggedinClient {
         return ("Have a nice day!");
 
         //throw new Exception("Expected: <yourname>");
+    }
+
+    public String play(String... params) throws Exception {
+        if (params.length >= 2) {
+            String id = params[0];
+            String color = params[1].toUpperCase();
+
+            JoinGameRequest request = new JoinGameRequest(auth, color, Integer.parseInt(id));
+
+            JoinGameResult r = server.joinGame(request, auth);
+            return String.format("You joined game:  %s.", id);
+        }
+        throw new Exception("Expected: <gamename>");
     }
 
     public String create(String... params) throws Exception {
