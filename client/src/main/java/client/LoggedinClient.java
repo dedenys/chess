@@ -1,10 +1,15 @@
 package client;
 
+import com.google.gson.Gson;
+import model.GameData;
+import model.request.ListGamesRequest;
 import model.request.LogoutRequest;
 import model.request.RegisterRequest;
+import model.result.ListGamesResult;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public class LoggedinClient {
     private final String serverUrl;
@@ -35,6 +40,7 @@ public class LoggedinClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "list" -> list();
                 case "logout" -> logout();
                 case "quit" -> "quit";
                 default -> help();
@@ -47,11 +53,24 @@ public class LoggedinClient {
     public String logout() throws Exception {
         state = State.PRELOGIN;
 
-        System.out.println(auth);
         LogoutRequest request = new LogoutRequest(auth);
         server.logout(request);
         return ("Have a nice day!");
 
         //throw new Exception("Expected: <yourname>");
     }
+
+    public String list() throws Exception {
+        ListGamesRequest request = new ListGamesRequest(auth);
+        Collection<GameData> games = server.listGames(request);
+        var result = new StringBuilder();
+        var gson = new Gson();
+        for (var game : games) {
+            result.append(gson.toJson(games)).append('\n');
+        }
+        return result.toString();
+    }
+
+
+
 }

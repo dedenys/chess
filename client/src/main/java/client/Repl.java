@@ -32,16 +32,19 @@ public class Repl {
                 state = State.LOGGEDIN;
                 loggedinClient.state = State.LOGGEDIN;
                 loggedinClient.auth = preLoginClient.auth;
+                preLoginClient.state = State.PRELOGIN;
             }
             if (loggedinClient.state == State.PRELOGIN) {
                 state = State.PRELOGIN;
                 preLoginClient.state = State.PRELOGIN;
+                loggedinClient.state = State.LOGGEDIN;
             }
 
             printPrompt();
             String line = scanner.nextLine();
 
             try {
+                System.out.println(state);
                 result = switch (state) {
                     case PRELOGIN -> preLoginClient.eval(line);
                     case LOGGEDIN -> loggedinClient.eval(line);
