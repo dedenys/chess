@@ -169,6 +169,19 @@ public class GameClient {
         }
     }
 
+    private static String getType(ChessPiece.PieceType type) {
+        String pieceToPrint = EMPTY;
+        switch (type) {
+            case KING -> pieceToPrint= K;
+            case QUEEN -> pieceToPrint = Q;
+            case BISHOP -> pieceToPrint = B;
+            case KNIGHT -> pieceToPrint = N;
+            case ROOK -> pieceToPrint = R;
+            case PAWN -> pieceToPrint = P;
+        }
+        return pieceToPrint;
+    }
+
     private static void drawRowOfSquares(PrintStream out, int boardRow) {
         boolean on = false;
         boolean firstRow = true;
@@ -186,7 +199,6 @@ public class GameClient {
         }
 
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
-            //on = !on;
             boolean squareColorWhite = true;
 
             out.print(SET_BG_COLOR_DARK_GREY);
@@ -216,18 +228,8 @@ public class GameClient {
                 if (piece != null) {
                     ChessPiece.PieceType type = piece.getPieceType();
                     pieceColor = piece.getTeamColor();
-
-                    switch (type) {
-                        case KING -> pieceToPrint = K;
-                        case QUEEN -> pieceToPrint = Q;
-                        case BISHOP -> pieceToPrint = B;
-                        case KNIGHT -> pieceToPrint = N;
-                        case ROOK -> pieceToPrint = R;
-                        case PAWN -> pieceToPrint = P;
-                    }
+                    pieceToPrint = getType(type);
                 }
-
-
 
                 if (boardRow % 2 == 0 ) {
                     if (boardCol % 2 == 0) {
@@ -249,8 +251,6 @@ public class GameClient {
                         squareColorWhite = true;
                     }
                 }
-
-
 
                 if (squareRow == SQUARE_SIZE_IN_PADDED_CHARS / 2) {
                     //setBlack(out);
@@ -297,10 +297,6 @@ public class GameClient {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void setRed(PrintStream out) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
-    }
     private static void setGray(PrintStream out) {
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_DARK_GREY);
