@@ -1,12 +1,19 @@
 package client;
 
+import model.GameData;
+import model.request.CreateGameRequest;
+import model.request.JoinGameRequest;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import model.result.CreateGameResult;
+import model.result.JoinGameResult;
 import model.result.LoginResult;
 import model.result.RegisterResult;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
+
+import java.util.Collection;
 
 
 public class ServerFacadeTests {
@@ -98,6 +105,181 @@ public class ServerFacadeTests {
         LoginResult result = null;
         try {
             result = serverFacade.login(newRequest);
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void createValidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        CreateGameResult result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            CreateGameRequest createRequest = new CreateGameRequest(auth,"newusersgame");
+            result = serverFacade.createGame(createRequest, auth);
+
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void createInvalidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        CreateGameResult result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            // invalid auth
+            CreateGameRequest createRequest = new CreateGameRequest("wrongauth","newusersgame");
+            result = serverFacade.createGame(createRequest, "wrongauth");
+
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void joinValidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        JoinGameResult result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            CreateGameRequest createRequest = new CreateGameRequest(auth,"newusersgame");
+            serverFacade.createGame(createRequest, auth);
+
+            JoinGameRequest joinRequest = new JoinGameRequest(auth, "BLACK", 1);
+            result = serverFacade.joinGame(joinRequest, auth);
+
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void joinInvalidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        JoinGameResult result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            CreateGameRequest createRequest = new CreateGameRequest(auth,"newusersgame");
+            serverFacade.createGame(createRequest, auth);
+
+            // try to join a nonexistant game
+            JoinGameRequest joinRequest = new JoinGameRequest(auth, "BLACK", 2);
+            result = serverFacade.joinGame(joinRequest, auth);
+
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void listValidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        Collection<GameData> result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            CreateGameRequest createRequest = new CreateGameRequest(auth,"newusersgame");
+            serverFacade.createGame(createRequest, auth);
+
+            result = serverFacade.listGames(auth);
+
+        }
+        catch(Exception e) {
+
+        }
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void listInvalidTest() {
+        String url = "http://localhost:"+String.valueOf(port);
+        System.out.println(url);
+        ServerFacade serverFacade;
+        serverFacade = new ServerFacade(url);
+
+        RegisterRequest newRegisterRequest = new RegisterRequest("newuser", "pass", "email");
+        RegisterResult resultRegister = null;
+
+        Collection<GameData> result = null;
+
+        try {
+            serverFacade.clear();
+            resultRegister = serverFacade.register(newRegisterRequest);
+            String auth = resultRegister.authToken();
+
+            CreateGameRequest createRequest = new CreateGameRequest(auth,"newusersgame");
+            serverFacade.createGame(createRequest, auth);
+
+            // try to list with bad auth
+            result = serverFacade.listGames("wrongauth");
+
         }
         catch(Exception e) {
 

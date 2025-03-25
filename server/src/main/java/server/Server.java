@@ -114,11 +114,11 @@ public class Server {
         String authToken = req.headers("authorization");
 
         String json = req.body();
-        System.out.println(json);
+        //System.out.println(json);
         JsonParser parser = new JsonParser();
         JsonElement jsonElement = parser.parse(json);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        System.out.println(jsonObject);
+        //System.out.println(jsonObject);
 
         String gameName = jsonObject.get("gameName").getAsString();
 

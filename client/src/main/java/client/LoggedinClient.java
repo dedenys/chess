@@ -74,6 +74,10 @@ public class LoggedinClient {
             String id = params[0];
             String colorToBe = params[1].toUpperCase();
 
+            if (availableGames == null) {
+                return "List games prior to playing.";
+            }
+
             JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
             JoinGameResult r = server.joinGame(request, auth);
@@ -89,6 +93,13 @@ public class LoggedinClient {
         if (params.length >= 1) {
             String id = params[0];
 
+            if (availableGames == null) {
+                return "List games prior to observing.";
+            }
+
+            if (Integer.parseInt(id) > availableGames.length) {
+                return "Invalid game id";
+            }
             //JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
             //JoinGameResult r = server.joinGame(request, auth);

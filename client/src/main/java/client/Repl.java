@@ -62,7 +62,7 @@ public class Repl {
             String line = scanner.nextLine();
 
             try {
-                System.out.println(state);
+                //System.out.println(state);
                 result = switch (state) {
                     case PRELOGIN -> preLoginClient.eval(line);
                     case LOGGEDIN -> loggedinClient.eval(line);
