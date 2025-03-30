@@ -34,13 +34,11 @@ public class GameClient {
 
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 3;
-    private static final int LINE_WIDTH_IN_PADDED_CHARS = 1;
+    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
+    private static final int LINE_WIDTH_IN_PADDED_CHARS = 0;
 
     // Padded characters.
     private static final String EMPTY = "   ";
-    private static final String X = " X ";
-    private static final String O = " O ";
 
     private static final String P = " P ";
     private static final String R = " R ";
@@ -76,7 +74,7 @@ public class GameClient {
             return switch (cmd) {
                 case "quit" -> "quit";
                 case "leave" -> leave();
-                case "view" -> test();
+                case "view" -> draw();
                 default -> help();
             };
         } catch (Exception ex) {
@@ -90,23 +88,20 @@ public class GameClient {
         return  String.format("You left the game");
     }
 
-    public String test() {
+    public String draw() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
         out.print(ERASE_SCREEN);
 
         drawHeaders(out);
-
         drawBoard(out);
+        drawHeaders(out);
 
-        setGray(out);
+        out.print("\u001B[49m");
         return "";
     }
 
     private static void drawHeaders(PrintStream out) {
-
-        setGray(out);
-
+        out.print(SET_BG_COLOR_BORDER);
         String[] letters;
 
         if (Objects.equals(color, "WHITE")) {
@@ -116,52 +111,36 @@ public class GameClient {
             letters = lettersBlack;
         }
 
+        out.print("   ");
+
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, letters[boardCol]);
-
-            if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
-            }
         }
+
+        out.print("   ");
+        out.print("\u001B[49m");
 
         out.println();
     }
 
     private static void drawHeader(PrintStream out, String headerText) {
-       // int prefixLength = 2;//SQUARE_SIZE_IN_PADDED_CHARS / 2;
-       // int suffixLength = 1;//SQUARE_SIZE_IN_PADDED_CHARS - prefixLength - 1;
-
-        //out.print(EMPTY.repeat(prefixLength));
-        out.print("      ");
         printHeaderText(out, headerText);
         out.print("  ");
-        //out.print(EMPTY.repeat(suffixLength));
     }
 
     private static void printHeaderText(PrintStream out, String player) {
-        out.print(SET_BG_COLOR_DARK_GREY);
-        out.print(SET_TEXT_COLOR_GREEN);
-
+        out.print(SET_TEXT_COLOR_BLUE);
         out.print(player);
-
-        setGray(out);
     }
 
     private static void drawBoard(PrintStream out) {
-
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-
-//            out.print(SET_BG_COLOR_BLACK);
-//            out.print(SET_TEXT_COLOR_GREEN);
-//
-//            out.print(numbers[boardRow]);
             drawRowOfSquares(out, boardRow);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(SET_BG_COLOR_DARK_GREY);
+                out.print("\u001B[49m");
 
-                out.print(SET_TEXT_COLOR_GREEN);
-                out.print("  ");
+                out.print(SET_TEXT_COLOR_BLUE);
                 // Draw horizontal row separator.
                 drawHorizontalLine(out);
                 setGray(out);
@@ -183,9 +162,6 @@ public class GameClient {
     }
 
     private static void drawRowOfSquares(PrintStream out, int boardRow) {
-        boolean on = false;
-        boolean firstRow = true;
-
         int row = boardRow;
         int column;
 
@@ -201,15 +177,11 @@ public class GameClient {
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_PADDED_CHARS; ++squareRow) {
             boolean squareColorWhite = true;
 
-            out.print(SET_BG_COLOR_DARK_GREY);
-            out.print(SET_TEXT_COLOR_GREEN);
-            if (squareRow == 1) {
-                out.print(numbers[boardRow]+" ");
-                firstRow = false;
-            }
-            else {
-                out.print("  ");
-            }
+            out.print(SET_BG_COLOR_BORDER);
+            out.print(SET_TEXT_COLOR_BLUE);
+
+            out.print(" "+numbers[boardRow]+" ");
+
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 String pieceToPrint = EMPTY;
                 column = boardCol;
@@ -274,6 +246,10 @@ public class GameClient {
                 setGray(out);
             }
 
+            out.print(SET_BG_COLOR_BORDER);
+            out.print(SET_TEXT_COLOR_BLUE);
+            out.print(" "+numbers[boardRow]+" ");
+            out.print("\u001B[49m");
             out.println();
         }
     }
@@ -293,7 +269,7 @@ public class GameClient {
     }
 
     private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_WHITE);
+        out.print(SET_BG_COLOR_LIGHT_SQUARE);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
@@ -304,23 +280,20 @@ public class GameClient {
 
 
     private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_BG_COLOR_DARK_SQUARE);
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
     private static void printPiece(PrintStream out, String player, ChessGame.TeamColor team) {
-//        out.print(SET_BG_COLOR_WHITE);
+
         if (team == ChessGame.TeamColor.WHITE) {
-            out.print(SET_TEXT_COLOR_BLUE);
+            out.print(SET_TEXT_COLOR_WHITE);
         }
         else {
-            out.print(SET_TEXT_COLOR_RED);
+            out.print(SET_TEXT_COLOR_BLACK);
         }
 
         out.print(SET_TEXT_BOLD);
-
         out.print(player);
-
-        //setWhite(out);
     }
 }

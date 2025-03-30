@@ -25,6 +25,7 @@ public class Repl {
     }
 
     public void run() {
+        System.out.print(BLUE);
         System.out.println("♕ Welcome to chess ♕");
 
 

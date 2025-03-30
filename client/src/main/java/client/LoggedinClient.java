@@ -33,9 +33,9 @@ public class LoggedinClient {
                     - help
                     - logout
                     - create <gamename>
-                    - play
+                    - play <gameID> <color>
                     - list
-                    - observe
+                    - observe <gameID>
                     - quit
                     """;
     }
@@ -70,27 +70,32 @@ public class LoggedinClient {
     }
 
     public String play(String... params) throws Exception {
-        if (params.length >= 2) {
+        if (params.length == 2) {
             String id = params[0];
             String colorToBe = params[1].toUpperCase();
 
-            if (availableGames == null) {
-                return "List games prior to playing.";
+            if (colorToBe.equals("WHITE") || colorToBe.equals("BLACK")) {
+                if (availableGames == null) {
+                    return "List games prior to playing.";
+                }
+
+                JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
+
+                JoinGameResult r = server.joinGame(request, auth);
+                state = State.GAME;
+                game = availableGames[Integer.parseInt(id)-1];
+                color = colorToBe;
+                return String.format("You joined game:  %s.", id);
+
             }
+            return "Please enter color as 'black' or 'white'";
 
-            JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
-
-            JoinGameResult r = server.joinGame(request, auth);
-            state = State.GAME;
-            game = availableGames[Integer.parseInt(id)-1];
-            color = colorToBe;
-            return String.format("You joined game:  %s.", id);
         }
-        throw new Exception("Expected: <gamename> <teamcolor>");
+        throw new Exception("Expected: <gameID> <color>");
     }
 
     public String observe(String... params) throws Exception {
-        if (params.length >= 1) {
+        if (params.length == 1) {
             String id = params[0];
 
             if (availableGames == null) {
@@ -108,11 +113,11 @@ public class LoggedinClient {
             color = "WHITE";
             return String.format("You are observing game:  %s.", id);
         }
-        throw new Exception("Expected: <gamenumber>");
+        throw new Exception("Expected: <gameID>");
     }
 
     public String create(String... params) throws Exception {
-        if (params.length >= 1) {
+        if (params.length == 1) {
             String name = params[0];
 
             CreateGameRequest request = new CreateGameRequest(auth, name);
@@ -134,7 +139,13 @@ public class LoggedinClient {
         for (var game : games) {
             String whiteuser = game.whiteUsername();
             String blackuser = game.blackUsername();
-            String thisGame = String.format("%s. Name: %s   BLACK: %s    WHITE: %s  \n", counter, game.gameName(), blackuser, whiteuser);
+            if (whiteuser == null) {
+                whiteuser = "-----";
+            }
+            if (blackuser == null) {
+                blackuser = "-----";
+            }
+            String thisGame = String.format("%s. GAME NAME: %-15s   BLACK: %-5s    WHITE: %s  \n", counter, game.gameName(), blackuser, whiteuser);
             result.append(thisGame);
             counter += 1;
         }

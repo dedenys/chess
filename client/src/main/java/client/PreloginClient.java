@@ -48,7 +48,7 @@ public class PreloginClient {
     }
 
     public String register(String... params) throws Exception {
-        if (params.length >= 3) {
+        if (params.length == 3) {
             userName = params[0];
             String pass = params[1];
             String email = params[2];
@@ -58,7 +58,7 @@ public class PreloginClient {
             state = State.LOGGEDIN;
             return String.format("You signed in as %s.", userName);
         }
-        throw new Exception("Expected: <yourname>");
+        throw new Exception("Expected: <yourname> <password> <email>");
     }
 
     public String login(String... params) throws Exception {
