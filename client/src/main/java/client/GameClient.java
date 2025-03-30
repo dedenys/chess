@@ -190,10 +190,12 @@ public class GameClient {
                 ChessPosition pos;
 
                 if (Objects.equals(color, "WHITE")) {
-                    pos = new ChessPosition(row+1, column+1);
+                    pos = new ChessPosition(8-row, 8-column);
+                    //pos = new ChessPosition(row+1, column+1);
                 }
                 else {
-                    pos = new ChessPosition(8-row, 8-column);
+                    pos = new ChessPosition(row+1, column+1);
+                    //pos = new ChessPosition(8-row, 8-column);
                 }
                 ChessPiece piece = testBoard.getPiece(pos);
 
