@@ -1,17 +1,12 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import model.GameData;
 import server.ServerFacade;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
@@ -61,8 +56,11 @@ public class GameClient {
     public String help() {
         return """
                     - help
-                    - view board
-                    - leave game
+                    - redraw
+                    - leave
+                    - move <startposition> <endposition>
+                    - resign
+                    - highlight <position>
                     """;
     }
 
@@ -74,12 +72,83 @@ public class GameClient {
             return switch (cmd) {
                 case "quit" -> "quit";
                 case "leave" -> leave();
-                case "view" -> draw();
+                case "redraw" -> draw(null,null);
+                case "highlight" -> highlight(params);
                 default -> help();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    private int letterToPosition(String letter) {
+        int col = 0;
+        switch (letter) {
+            case "a" -> col = 1;
+            case "b" -> col = 2;
+            case "c" -> col = 3;
+            case "d" -> col = 4;
+            case "e" -> col = 5;
+            case "f" -> col = 6;
+            case "g" -> col = 7;
+            case "h" -> col = 8;
+        }
+        return col;
+    }
+
+    public String highlight(String... params) throws Exception {
+        if (params.length == 1) {
+            String positionString = params[0];
+            if (positionString.length() != 2) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+
+            String firstLetter = positionString.substring(0,1);
+            String secondLetter = positionString.substring(1,2);
+            List<String> letterList = Arrays.asList(lettersBlack);
+            List<String> numberList = Arrays.asList(numbersBlack);
+
+            if (!letterList.contains(firstLetter)) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+            if (!numberList.contains(secondLetter)) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+
+            int col = 0;
+            int row = 0;
+
+            col = letterToPosition(firstLetter);
+            switch (secondLetter) {
+                case "1" -> row = 1;
+                case "2" -> row = 2;
+                case "3" -> row = 3;
+                case "4" -> row = 4;
+                case "5" -> row = 5;
+                case "6" -> row = 6;
+                case "7" -> row = 7;
+                case "8" -> row = 8;
+            }
+
+            ChessPosition pos = new ChessPosition(row, col);
+            ChessPiece piece = testBoard.getPiece(pos);
+
+            if (piece == null) {
+                return "Position is currently empty";
+            }
+
+            Collection<ChessMove> validMoves = piece.pieceMoves(testBoard, pos);
+            List<ChessPosition> endPositions = new ArrayList<>();
+
+            for (ChessMove move: validMoves) {
+                endPositions.add(move.getEndPosition());
+            }
+            draw(pos, (endPositions));
+
+            return ("Highlighting board for: " + pos);
+        }
+        throw new Exception("Expected: <position>");
+
     }
 
     public String leave() {
@@ -88,12 +157,12 @@ public class GameClient {
         return  String.format("You left the game");
     }
 
-    public String draw() {
+    public String draw(ChessPosition selectedPiece, List<ChessPosition> endPositions) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 
         drawHeaders(out);
-        drawBoard(out);
+        drawBoard(out, selectedPiece, endPositions);
         drawHeaders(out);
 
         out.print("\u001B[49m");
@@ -111,13 +180,13 @@ public class GameClient {
             letters = lettersBlack;
         }
 
-        out.print("   ");
+        out.print("    ");
 
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, letters[boardCol]);
         }
 
-        out.print("   ");
+        out.print("  ");
         out.print("\u001B[49m");
 
         out.println();
@@ -133,9 +202,9 @@ public class GameClient {
         out.print(player);
     }
 
-    private static void drawBoard(PrintStream out) {
+    private static void drawBoard(PrintStream out, ChessPosition selectedPiece, List<ChessPosition> endPositions) {
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
-            drawRowOfSquares(out, boardRow);
+            drawRowOfSquares(out, boardRow, selectedPiece, endPositions);
 
             if (boardRow < BOARD_SIZE_IN_SQUARES - 1) {
                 out.print("\u001B[49m");
@@ -161,7 +230,7 @@ public class GameClient {
         return pieceToPrint;
     }
 
-    private static void drawRowOfSquares(PrintStream out, int boardRow) {
+    private static void drawRowOfSquares(PrintStream out, int boardRow, ChessPosition selectedPiece, List<ChessPosition> endPositions) {
         int row = boardRow;
         int column;
 
@@ -189,12 +258,42 @@ public class GameClient {
 
                 ChessPosition pos;
 
+                int highlight = 0;
+
                 if (Objects.equals(color, "WHITE")) {
                     pos = new ChessPosition(8-row, 8-column);
+
+                    if (selectedPiece != null) {
+                        if (selectedPiece.getRow() == (8-boardRow) && selectedPiece.getColumn() == (boardCol+1)) {
+                            highlight = 2;
+                        }
+                    }
+
+                    if (endPositions != null) {
+                        for (ChessPosition p: endPositions) {
+                            if (p.getRow() == (8-boardRow) && p.getColumn() == (boardCol+1)) {
+                                highlight = 1;
+                            }
+                        }
+                    }
                     //pos = new ChessPosition(row+1, column+1);
                 }
                 else {
                     pos = new ChessPosition(row+1, column+1);
+
+                    if (selectedPiece != null) {
+                        if (selectedPiece.getRow() == (boardRow+1) && selectedPiece.getColumn() == (8-boardCol)) {
+                            highlight = 2;
+                        }
+                    }
+
+                    if (endPositions != null) {
+                        for (ChessPosition p: endPositions) {
+                            if (p.getRow() == (boardRow+1) && p.getColumn() == (8-boardCol)) {
+                                highlight = 1;
+                            }
+                        }
+                    }
                     //pos = new ChessPosition(8-row, 8-column);
                 }
                 ChessPiece piece = testBoard.getPiece(pos);
@@ -205,23 +304,27 @@ public class GameClient {
                     pieceToPrint = getType(type);
                 }
 
+
+
+
+
                 if (boardRow % 2 == 0 ) {
                     if (boardCol % 2 == 0) {
-                        setWhite(out);
+                        setWhite(out, highlight);
                         squareColorWhite = true;
                     }
                     else {
-                        setBlack(out);
+                        setBlack(out, highlight);
                         squareColorWhite = false;
                     }
                 }
                 else {
                     if (boardCol % 2 == 0) {
-                        setBlack(out);
+                        setBlack(out, highlight);
                         squareColorWhite = false;
                     }
                     else {
-                        setWhite(out);
+                        setWhite(out, highlight);
                         squareColorWhite = true;
                     }
                 }
@@ -270,9 +373,19 @@ public class GameClient {
         }
     }
 
-    private static void setWhite(PrintStream out) {
-        out.print(SET_BG_COLOR_LIGHT_SQUARE);
-        out.print(SET_TEXT_COLOR_WHITE);
+    private static void setWhite(PrintStream out, int highlight) {
+        if (highlight == 1) {
+            out.print(SET_BG_COLOR_LIGHT_SQUARE_HIGHLIGHT);
+            out.print(SET_TEXT_COLOR_WHITE);
+        }
+        else if (highlight == 2) {
+            out.print(SET_BG_COLOR_SELECTED);
+            out.print(SET_TEXT_COLOR_WHITE);
+        }
+        else {
+            out.print(SET_BG_COLOR_LIGHT_SQUARE);
+            out.print(SET_TEXT_COLOR_WHITE);
+        }
     }
 
     private static void setGray(PrintStream out) {
@@ -281,9 +394,19 @@ public class GameClient {
     }
 
 
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_DARK_SQUARE);
-        out.print(SET_TEXT_COLOR_BLACK);
+    private static void setBlack(PrintStream out, int highlight) {
+        if (highlight == 1) {
+            out.print(SET_BG_COLOR_DARK_SQUARE_HIGHLIGHT);
+            out.print(SET_TEXT_COLOR_BLACK);
+        }
+        else if (highlight == 2) {
+            out.print(SET_BG_COLOR_SELECTED);
+            out.print(SET_TEXT_COLOR_BLACK);
+        }
+        else {
+            out.print(SET_BG_COLOR_DARK_SQUARE);
+            out.print(SET_TEXT_COLOR_BLACK);
+        }
     }
 
     private static void printPiece(PrintStream out, String player, ChessGame.TeamColor team) {
