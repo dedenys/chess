@@ -6,11 +6,15 @@ import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.commands.UserGameCommand;
+import websocket.messages.NotificationMessage;
 //import webSocketMessages.Action;
 //import webSocketMessages.Notification;
 
 import java.io.IOException;
 import java.util.Timer;
+
+import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 
 
 @WebSocket
@@ -18,14 +22,16 @@ public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
 
-//    @OnWebSocketMessage
-//    public void onMessage(Session session, String message) throws IOException {
-//        Action action = new Gson().fromJson(message, Action.class);
+    @OnWebSocketMessage
+    public void onMessage(Session session, String message) throws IOException {
+        UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
+        NotificationMessage n = new NotificationMessage(NOTIFICATION, "test!");
+        connections.broadcast("test_websocket", n);
 //        switch (action.type()) {
 //            case ENTER -> enter(action.visitorName(), session);
 //            case EXIT -> exit(action.visitorName());
 //        }
-//    }
+    }
 
 //    private void enter(String visitorName, Session session) throws IOException {
 //        connections.add(visitorName, session);
