@@ -13,7 +13,7 @@ public class Repl {
     private final PreloginClient preLoginClient;
     private final LoggedinClient loggedinClient;
     private final GameClient gameClient;
-    private State state = State.GAME;
+    private State state = State.PRELOGIN;
     private GameData game = null;
 
 
