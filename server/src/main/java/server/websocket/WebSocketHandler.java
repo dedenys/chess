@@ -89,7 +89,7 @@ public class WebSocketHandler {
     private void connect(Session session, String username, UserGameCommand command) throws IOException {
         System.out.println("in connect");
         var message = String.format("%s is in the game", username);
-        connections.broadcast("dont-exclude", new NotificationMessage(NOTIFICATION, message));
+        connections.broadcast(username, new NotificationMessage(NOTIFICATION, message));
         ChessGame placeHolderGame = new ChessGame();
         connections.loadGame(username, placeHolderGame);
     }

@@ -88,24 +88,49 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage message) {
-        System.out.println("in notify");
-        System.out.println(message.getServerMessageType());
-        switch (message.getServerMessageType()) {
-            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
-        }
+    public void notify(NotificationMessage notification) {
+        //System.out.println(notification);
+        System.out.println(RED + notification.getMessage());
+
+        printPrompt();
     }
 
+    @Override
+    public void load(LoadGameMessage message) {
+        ChessGame game = message.getGame();
+        GameClient.testGame = game;
+        GameClient.testBoard = game.getBoard();
+        System.out.println("\n");
+        GameClient.draw(null, null);
+    }
+
+
+//    public void notify(ServerMessage message) {
+//        //System.out.println("in notify");
+//        //System.out.println(message.getServerMessageType());
+////        switch (message.getServerMessageType()) {
+////            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+////            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+////            case LOAD_GAME -> test(((LoadGameMessage) message));
+////        }
+//
+//        GameClient.draw(null, null);
+//    }
+
     private void displayNotification(String message) {
-        System.out.println(GREEN+message);
+        System.out.println("displaying notification");
+        System.out.println(RED+message);
         printPrompt();
     }
 
     private void displayError(String errorMessage) {
         System.out.println(RED+errorMessage);
         printPrompt();
+    }
+
+    private void test(LoadGameMessage message) {
+        System.out.println("trying to load game");
+        ChessGame game = message.getGame();
     }
 
     private void loadGame(ChessGame game) {

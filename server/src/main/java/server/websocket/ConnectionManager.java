@@ -35,11 +35,13 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                String result = new Gson().toJson(notification, ServerMessage.class);
-                c.send(result);
-                //if (!c.name.equals(excludeVisitorName)) {
-                //    c.send(notification.toString());
-                //}
+                String result = new Gson().toJson(notification, NotificationMessage.class);
+                //c.send(result);
+                if (!c.name.equals(excludeVisitorName)) {
+                    //System.out.println(notification.getMessage());
+                    //c.send(notification.toString());
+                    c.send(result);
+                }
             } else {
                 removeList.add(c);
             }
