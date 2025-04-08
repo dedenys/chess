@@ -89,6 +89,8 @@ public class Repl implements NotificationHandler {
 
     @Override
     public void notify(ServerMessage message) {
+        System.out.println("in notify");
+        System.out.println(message.getServerMessageType());
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
             case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
@@ -107,6 +109,7 @@ public class Repl implements NotificationHandler {
     }
 
     private void loadGame(ChessGame game) {
+        System.out.println("in client load game");
         GameClient.testGame = game;
         GameClient.testBoard = game.getBoard();
         GameClient.draw(null, null);

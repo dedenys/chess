@@ -24,7 +24,7 @@ public class Server {
         userDAO = new DatabaseUserDAO();
         authDAO = new DatabaseAuthDAO();
         gameDAO = new DatabaseGameDAO();
-        webSocketHandler = new WebSocketHandler(authDAO);
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO);
 
     }
 
