@@ -23,6 +23,13 @@ public class NotificationMessage extends ServerMessage {
         return Objects.hash(super.hashCode(), message);
     }
 
+    @Override
+    public String toString() {
+        return "NotificationMessage{" +
+                "message='" + message + '\'' +
+                '}';
+    }
+
     public NotificationMessage(ServerMessageType type, String m) {
         super(type);
         message = m;

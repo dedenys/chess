@@ -3,6 +3,9 @@ package server.websocket;
 import com.google.gson.Gson;
 //import dataaccess.DataAccess;
 //import exception.ResponseException;
+import dataaccess.AuthDAO;
+import dataaccess.DatabaseAuthDAO;
+import model.AuthData;
 import model.request.JoinGameNoAuth;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -26,6 +29,11 @@ import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
+    private final AuthDAO authDAO;
+
+    public WebSocketHandler(AuthDAO dao) {
+        authDAO = dao;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
@@ -60,15 +68,21 @@ public class WebSocketHandler {
     }
 
     private String getUsername(String authToken) {
-        return "not-implemented";
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            return "NULL USER";
+        }
+        String name = auth.username();
+        return name;
     }
 
     private void saveSession(int gameID, Session session) throws Exception {
-        //connections.add(gameID, session);
+        connections.add(String.valueOf(gameID), session);
     }
 
-    private void connect(Session session, String username, UserGameCommand command) {
-
+    private void connect(Session session, String username, UserGameCommand command) throws IOException {
+        var message = String.format("%s is in the game", username);
+        connections.broadcast("dont-exclude", new NotificationMessage(NOTIFICATION, message));
     }
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {

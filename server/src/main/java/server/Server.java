@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import dataaccess.*;
 import model.request.*;
 import model.result.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 import spark.*;
 
@@ -17,11 +18,13 @@ public class Server {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         userDAO = new DatabaseUserDAO();
         authDAO = new DatabaseAuthDAO();
         gameDAO = new DatabaseGameDAO();
+        webSocketHandler = new WebSocketHandler(authDAO);
 
     }
 
@@ -30,7 +33,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
+        Spark.webSocket("/ws", webSocketHandler);
 
         Spark.post("/user", this::registerUser);
         Spark.delete("/db", this::clear);
