@@ -21,6 +21,7 @@ public class LoggedinClient {
     public GameData game = null;
     private GameData[] availableGames;
     public static String color;
+    public int gameID;
 
 
     public LoggedinClient(String serverUrl) {
@@ -82,6 +83,7 @@ public class LoggedinClient {
                 JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
                 JoinGameResult r = server.joinGame(request, auth);
+                gameID = Integer.parseInt(id);
                 state = State.GAME;
                 game = availableGames[Integer.parseInt(id)-1];
                 color = colorToBe;

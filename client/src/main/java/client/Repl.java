@@ -23,7 +23,7 @@ public class Repl implements NotificationHandler {
     public Repl(String serverUrl) {
         preLoginClient = new PreloginClient(serverUrl);
         loggedinClient = new LoggedinClient(serverUrl);
-        gameClient = new GameClient(serverUrl);
+        gameClient = new GameClient(serverUrl, this);
     }
 
     public void run() {
@@ -53,6 +53,9 @@ public class Repl implements NotificationHandler {
                 gameClient.gameData = game;
                 gameClient.game = game.game();
                 gameClient.color = loggedinClient.color;
+                gameClient.setAuth(loggedinClient.auth);
+                gameClient.setGameID(loggedinClient.gameID);
+                gameClient.connect();
                 loggedinClient.state = State.LOGGEDIN;
             }
             if (GameClient.isLeaving) {

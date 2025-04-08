@@ -26,6 +26,8 @@ public class GameClient {
     public static ChessGame testGame;
     public static ChessBoard testBoard;
 
+    private String auth;
+    private int gameID;
     private final NotificationHandler notificationHandler;
     private WebSocketFacade ws;
 
@@ -57,6 +59,24 @@ public class GameClient {
         testGame = new ChessGame();
         testBoard = testGame.getBoard();
         this.notificationHandler = notificationHandler;
+
+    }
+
+    public void setAuth(String authToken) {
+        auth = authToken;
+    }
+
+    public void setGameID(int id) {
+        gameID = id;
+    }
+
+    public void connect() {
+        try {
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.connectToGame(auth, gameID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String help() {
