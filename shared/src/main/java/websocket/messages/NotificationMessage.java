@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class NotificationMessage extends ServerMessage {
 
-    private final String message;
+    public final String message;
 
     @Override
     public boolean equals(Object o) {

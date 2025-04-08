@@ -1,14 +1,16 @@
 package client;
 
 import chess.ChessGame;
+import client.websocket.NotificationHandler;
 import model.GameData;
 import model.result.LoginResult;
+import websocket.messages.NotificationMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements NotificationHandler {
 
     private final PreloginClient preLoginClient;
     private final LoggedinClient loggedinClient;
@@ -77,6 +79,11 @@ public class Repl {
             }
         }
         System.out.println();
+    }
+
+    public void notify(NotificationMessage notification) {
+        System.out.println(RED + notification.message);
+        printPrompt();
     }
 
     private void printPrompt() {

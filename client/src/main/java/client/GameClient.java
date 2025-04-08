@@ -1,6 +1,8 @@
 package client;
 
 import chess.*;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import model.GameData;
 import server.ServerFacade;
 
@@ -24,6 +26,9 @@ public class GameClient {
     public static ChessGame testGame;
     public static ChessBoard testBoard;
 
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
+
 
     // UI
 
@@ -46,11 +51,12 @@ public class GameClient {
 
 
 
-    public GameClient(String serverUrl) {
+    public GameClient(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         testGame = new ChessGame();
         testBoard = testGame.getBoard();
+        this.notificationHandler = notificationHandler;
     }
 
     public String help() {
