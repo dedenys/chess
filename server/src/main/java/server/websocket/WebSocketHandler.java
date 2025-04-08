@@ -38,11 +38,14 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
+            System.out.println(message);
             UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-
+            System.out.println(command.getCommandType());
             String username = getUsername(command.getAuthToken());
 
             saveSession(command.getGameID(), session);
+
+            connect(session, username, command);
 
             switch (command.getCommandType()) {
                 case CONNECT -> connect(session, username, command);
@@ -81,6 +84,7 @@ public class WebSocketHandler {
     }
 
     private void connect(Session session, String username, UserGameCommand command) throws IOException {
+        System.out.println("in connect");
         var message = String.format("%s is in the game", username);
         connections.broadcast("dont-exclude", new NotificationMessage(NOTIFICATION, message));
     }
