@@ -11,6 +11,10 @@ public class ErrorMessage extends ServerMessage {
         errorMessage = m;
     }
 
+    public String getErrorMessage() {
+        return  errorMessage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

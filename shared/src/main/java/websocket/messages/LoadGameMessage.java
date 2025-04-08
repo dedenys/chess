@@ -13,6 +13,10 @@ public class LoadGameMessage extends  ServerMessage {
         game = g;
     }
 
+    public ChessGame getGame() {
+        return game;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

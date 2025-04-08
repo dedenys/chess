@@ -34,4 +34,8 @@ public class NotificationMessage extends ServerMessage {
         super(type);
         message = m;
     }
+
+    public String getMessage() {
+        return message;
+    }
 }

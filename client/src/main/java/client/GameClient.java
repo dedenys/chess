@@ -177,7 +177,7 @@ public class GameClient {
         return  String.format("You left the game");
     }
 
-    public String draw(ChessPosition selectedPiece, List<ChessPosition> endPositions) {
+    public static String draw(ChessPosition selectedPiece, List<ChessPosition> endPositions) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
 

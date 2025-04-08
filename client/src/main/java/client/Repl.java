@@ -4,7 +4,10 @@ import chess.ChessGame;
 import client.websocket.NotificationHandler;
 import model.GameData;
 import model.result.LoginResult;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
@@ -84,9 +87,29 @@ public class Repl implements NotificationHandler {
         System.out.println();
     }
 
-    public void notify(NotificationMessage notification) {
-        System.out.println(RED + notification.message);
+    @Override
+    public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
+            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
+            case LOAD_GAME -> loadGame(((LoadGameMessage) message).getGame());
+        }
+    }
+
+    private void displayNotification(String message) {
+        System.out.println(GREEN+message);
         printPrompt();
+    }
+
+    private void displayError(String errorMessage) {
+        System.out.println(RED+errorMessage);
+        printPrompt();
+    }
+
+    private void loadGame(ChessGame game) {
+        GameClient.testGame = game;
+        GameClient.testBoard = game.getBoard();
+        GameClient.draw(null, null);
     }
 
     private void printPrompt() {
