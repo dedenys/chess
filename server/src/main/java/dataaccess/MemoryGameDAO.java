@@ -1,5 +1,6 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 
@@ -21,6 +22,12 @@ public class MemoryGameDAO implements GameDAO {
         games.put(newId, newGame);
         id++;
         return newGame;
+    }
+
+    public void updateGame(int id, String jsonData) {
+        GameData data = new Gson().fromJson(jsonData, GameData.class);
+        String newId = String.valueOf(id);
+        games.put(newId, data);
     }
 
     public Collection<GameData> getAllGames() {

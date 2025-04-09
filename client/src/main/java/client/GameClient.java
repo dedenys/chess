@@ -30,6 +30,7 @@ public class GameClient {
     private int gameID;
     private final NotificationHandler notificationHandler;
     private WebSocketFacade ws;
+    public static ChessGame.TeamColor currentTurn;
 
 
     // UI
@@ -79,12 +80,21 @@ public class GameClient {
         }
     }
 
+    public String sendMove(ChessMove m) {
+        try {
+            ws.makeMove(auth, gameID, m);
+            return "Move successful!";
+        } catch (Exception e) {
+            return "Error occurred ;(";
+        }
+    }
+
     public String help() {
         return """
                     - help
                     - redraw
                     - leave
-                    - move <startposition> <endposition>
+                    - move <startposition> <endposition> <promotion (pawn only)>
                     - resign
                     - highlight <position>
                     """;
@@ -99,6 +109,7 @@ public class GameClient {
                 case "quit" -> "quit";
                 case "leave" -> leave();
                 case "redraw" -> draw(null,null);
+                case "move" -> makeMove(params);
                 case "highlight" -> highlight(params);
                 default -> help();
             };
@@ -130,6 +141,75 @@ public class GameClient {
     private boolean validNumberChecker(String number) {
         List<String> numberList = Arrays.asList(numbersBlack);
         return numberList.contains(number);
+    }
+
+    public String makeMove(String... params) throws Exception {
+        if (params.length == 2 || params.length == 3) {
+            String startPositionString = params[0];
+            String endPositionString = params[1];
+            String promotion = null;
+
+            if (params.length == 3) {
+                promotion = params[2];
+            }
+
+            if (currentTurn == ChessGame.TeamColor.WHITE && !Objects.equals(color, "WHITE")) {
+                return "Not your turn!";
+            }
+            if (currentTurn == ChessGame.TeamColor.BLACK && !Objects.equals(color, "BLACK")) {
+                return "Not your turn!";
+            }
+
+            if ((startPositionString.length() != 2) || (endPositionString.length() != 2)) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+
+            String firstLetterStart = startPositionString.substring(0,1);
+            String secondLetterStart = startPositionString.substring(1,2);
+
+            if (!validLetterChecker(firstLetterStart) || !validNumberChecker(secondLetterStart)) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+
+            String firstLetterEnd = endPositionString.substring(0,1);
+            String secondLetterEnd = endPositionString.substring(1,2);
+
+            if (!validLetterChecker(firstLetterEnd) || !validNumberChecker(secondLetterEnd)) {
+                return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
+            }
+
+            int colStart = letterToPosition(firstLetterStart);
+            int rowStart = Integer.parseInt(secondLetterStart);
+
+            ChessPosition startPos = new ChessPosition(rowStart, colStart);
+            ChessPiece piece = testBoard.getPiece(startPos);
+
+            if (piece == null) {
+                return "Start position is currently empty";
+            }
+
+            if ((piece.getTeamColor() == ChessGame.TeamColor.BLACK) && !Objects.equals(color, "BLACK")) {
+                return "Error: Piece belongs to opponent";
+            }
+            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) && !Objects.equals(color, "WHITE")) {
+                return "Error: Piece belongs to opponent";
+            }
+
+            if ((piece.getPieceType() != ChessPiece.PieceType.PAWN) && promotion != null) {
+                return "Promotion is not applicable to piece";
+            }
+
+            int colEnd = letterToPosition(firstLetterEnd);
+            int rowEnd = Integer.parseInt(secondLetterEnd);
+
+            ChessPosition endPos = new ChessPosition(rowEnd, colEnd);
+
+            // ADD promotion functionality!
+            ChessMove move = new ChessMove(startPos, endPos, null);
+
+            return sendMove(move);
+        }
+        throw new Exception("Expected: <startposition> <endposition>");
     }
 
     public String highlight(String... params) throws Exception {

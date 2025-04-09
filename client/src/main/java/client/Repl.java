@@ -100,6 +100,7 @@ public class Repl implements NotificationHandler {
         ChessGame game = message.getGame();
         GameClient.testGame = game;
         GameClient.testBoard = game.getBoard();
+        GameClient.currentTurn = game.getTeamTurn();
         System.out.println("\n");
         GameClient.draw(null, null);
     }

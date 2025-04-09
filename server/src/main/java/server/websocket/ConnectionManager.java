@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, Integer> playersInGames = new ConcurrentHashMap<String, Integer>();
 
     public void add(String visitorName, Session session) {
         var connection = new Connection(visitorName, session);
@@ -29,6 +30,24 @@ public class ConnectionManager {
         String result = new Gson().toJson(message, LoadGameMessage.class);
         var c = connections.get(username);
         c.send(result);
+    }
+
+    public void broadcastGame(ChessGame game) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        LoadGameMessage message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        String result = new Gson().toJson(message, LoadGameMessage.class);
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                c.send(result);
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.name);
+        }
     }
 
     public void broadcast(String excludeVisitorName, NotificationMessage notification) throws IOException {

@@ -55,6 +55,21 @@ public class DatabaseGameDAO implements GameDAO {
         }
     }
 
+    public void updateGame(int id, String jsonData) {
+        try (var conn = DatabaseManager.getConnection()) {
+            GameData game = getGame(id);
+
+            try (var preparedStatement = conn.prepareStatement("UPDATE game SET json=? WHERE id=?")) {
+                preparedStatement.setString(1, jsonData);
+                preparedStatement.setInt(2, id);
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public Collection<GameData> getAllGames() {
         var result = new ArrayList<GameData>();
         try (var conn = DatabaseManager.getConnection()) {

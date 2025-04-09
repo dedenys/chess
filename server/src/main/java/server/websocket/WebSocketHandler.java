@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 //import dataaccess.DataAccess;
 //import exception.ResponseException;
@@ -8,6 +9,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DatabaseAuthDAO;
 import dataaccess.GameDAO;
 import model.AuthData;
+import model.GameData;
 import model.request.JoinGameNoAuth;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -44,15 +46,21 @@ public class WebSocketHandler {
         try {
             //System.out.println(message);
             UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-            //System.out.println(command.getCommandType());
+            MakeMoveCommand makeMoveCommand = null;
+
+            UserGameCommand.CommandType t = command.getCommandType();
+            if (t == UserGameCommand.CommandType.MAKE_MOVE) {
+                makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
+            }
+
             String username = getUsername(command.getAuthToken());
 
             //saveSession(command.getGameID(), session);
             saveSession(username, session);
 
-            switch (command.getCommandType()) {
+            switch (t) {
                 case CONNECT -> connect(session, username, command);
-                case MAKE_MOVE -> makeMove(session, username, (MakeMoveCommand) command);
+                case MAKE_MOVE -> makeMove(session, username, makeMoveCommand);
                 case LEAVE -> leaveGame(session, username, command);
                 case RESIGN -> resign(session, username, command);
             }
@@ -90,12 +98,33 @@ public class WebSocketHandler {
         System.out.println("in connect");
         var message = String.format("%s is in the game", username);
         connections.broadcast(username, new NotificationMessage(NOTIFICATION, message));
-        ChessGame placeHolderGame = new ChessGame();
-        connections.loadGame(username, placeHolderGame);
+        int id = command.getGameID();
+        GameData data = gameDAO.getGame(id);
+        ChessGame game = data.game();
+        connections.loadGame(username, game);
     }
 
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {
+        try {
+            int id = command.getGameID();
+            ChessMove m = command.getMove();
+            System.out.println("1");
+            GameData gameData = gameDAO.getGame(id);
+            System.out.println(gameData);
+            ChessGame game = gameData.game();
+
+            game.makeMove(m);
+
+            System.out.println("2");
+            GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            String json = new Gson().toJson(newGameData, GameData.class);
+            gameDAO.updateGame(id, json);
+            System.out.println(game);
+            connections.broadcastGame(game);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
