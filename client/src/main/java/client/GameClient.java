@@ -121,14 +121,29 @@ public class GameClient {
     private int letterToPosition(String letter) {
         int col = 0;
         switch (letter) {
-            case "a" -> col = 1;
-            case "b" -> col = 2;
-            case "c" -> col = 3;
-            case "d" -> col = 4;
-            case "e" -> col = 5;
-            case "f" -> col = 6;
-            case "g" -> col = 7;
-            case "h" -> col = 8;
+            case "a" -> col = 8;
+            case "b" -> col = 7;
+            case "c" -> col = 6;
+            case "d" -> col = 5;
+            case "e" -> col = 4;
+            case "f" -> col = 3;
+            case "g" -> col = 2;
+            case "h" -> col = 1;
+        }
+        return col;
+    }
+
+    private int letterToPositionMove(String letter) {
+        int col = 0;
+        switch (letter) {
+            case "a" -> col = 8;
+            case "b" -> col = 7;
+            case "c" -> col = 6;
+            case "d" -> col = 5;
+            case "e" -> col = 4;
+            case "f" -> col = 3;
+            case "g" -> col = 2;
+            case "h" -> col = 1;
         }
         return col;
     }
@@ -178,7 +193,7 @@ public class GameClient {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int colStart = letterToPosition(firstLetterStart);
+            int colStart = letterToPositionMove(firstLetterStart);
             int rowStart = Integer.parseInt(secondLetterStart);
 
             ChessPosition startPos = new ChessPosition(rowStart, colStart);
@@ -199,7 +214,7 @@ public class GameClient {
                 return "Promotion is not applicable to piece";
             }
 
-            int colEnd = letterToPosition(firstLetterEnd);
+            int colEnd = letterToPositionMove(firstLetterEnd);
             int rowEnd = Integer.parseInt(secondLetterEnd);
 
             ChessPosition endPos = new ChessPosition(rowEnd, colEnd);
@@ -227,7 +242,7 @@ public class GameClient {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int col = letterToPosition(firstLetter);
+            int col = letterToPositionMove(firstLetter);
             int row = Integer.parseInt(secondLetter);
 
             ChessPosition pos = new ChessPosition(row, col);
@@ -241,7 +256,13 @@ public class GameClient {
             List<ChessPosition> endPositions = new ArrayList<>();
 
             for (ChessMove move: validMoves) {
-                endPositions.add(move.getEndPosition());
+                ChessPosition end = move.getEndPosition();
+                int r = end.getRow();
+                int c = end.getColumn();
+
+                //int newc = -c + 9;
+                ChessPosition newEnd = new ChessPosition(r, c);
+                endPositions.add(newEnd);
             }
             draw(pos, endPositions);
 
@@ -380,7 +401,7 @@ public class GameClient {
 
             out.print(" "+numbers[boardRow]+" ");
 
-            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+            for (int boardCol = 7; boardCol >= 0; --boardCol) {
                 String pieceToPrint = EMPTY;
                 column = boardCol;
                 ChessGame.TeamColor pieceColor = null;
@@ -390,11 +411,11 @@ public class GameClient {
                 int highlight = 0;
 
                 if (Objects.equals(color, "WHITE")) {
-                    pos = new ChessPosition(8-row, 8-column);
+                    pos = new ChessPosition(8-row, column+1);
                     highlight = setHighlight(selectedPiece, boardRow, boardCol, endPositions);
                 }
                 else {
-                    pos = new ChessPosition(row+1, column+1);
+                    pos = new ChessPosition(row+1, 8-column);
                     highlight = setHighlight(selectedPiece, boardRow, boardCol, endPositions);
                 }
                 ChessPiece piece = testBoard.getPiece(pos);
