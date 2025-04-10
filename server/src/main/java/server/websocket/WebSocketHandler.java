@@ -130,7 +130,7 @@ public class WebSocketHandler {
 
     }
 
-    private void makeMove(Session session, String username, MakeMoveCommand command) {
+    private void makeMove(Session session, String username, MakeMoveCommand command) throws Exception {
         try {
             int id = command.getGameID();
             ChessMove m = command.getMove();
@@ -147,8 +147,10 @@ public class WebSocketHandler {
             gameDAO.updateGame(id, json);
             System.out.println(game);
             connections.broadcastGame(game);
+            connections.broadcast(username, new NotificationMessage(NOTIFICATION, m.toString()));
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            throw new Exception("Error: bad move ;(");
         }
 
     }

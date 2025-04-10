@@ -83,12 +83,12 @@ public class GameClient {
         }
     }
 
-    public String sendMove(ChessMove m) {
+    public void sendMove(ChessMove m) {
         try {
             ws.makeMove(auth, gameID, m);
-            return "Move successful!";
+            //return "Move successful!";
         } catch (Exception e) {
-            return "Error occurred ;(";
+            //return "Error occurred ;(";
         }
     }
 
