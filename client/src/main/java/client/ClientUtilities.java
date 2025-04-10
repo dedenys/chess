@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class GameClientUtilities {
+public class ClientUtilities {
 
     static int setHighlight(String color, ChessPosition selectedPiece, int boardRow, int boardCol, List<ChessPosition> endPositions) {
         int rowIndex;
@@ -52,12 +52,12 @@ public class GameClientUtilities {
         return col;
     }
 
-    static boolean validLetterChecker(String letter, String[] lettersBlack) {
+    static boolean validLetter(String letter, String[] lettersBlack) {
         List<String> letterList = Arrays.asList(lettersBlack);
         return letterList.contains(letter);
     }
 
-    static boolean validNumberChecker(String number, String[] numbersBlack) {
+    static boolean validNumber(String number, String[] numbersBlack) {
         List<String> numberList = Arrays.asList(numbersBlack);
         return numberList.contains(number);
     }

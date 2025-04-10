@@ -178,18 +178,18 @@ public class GameClient {
             String firstLetterStart = startPositionString.substring(0,1);
             String secondLetterStart = startPositionString.substring(1,2);
 
-            if (!GameClientUtilities.validLetterChecker(firstLetterStart, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetterStart, numbersBlack)) {
+            if (!ClientUtilities.validLetter(firstLetterStart, lettersBlack) || !ClientUtilities.validNumber(secondLetterStart, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
             String firstLetterEnd = endPositionString.substring(0,1);
             String secondLetterEnd = endPositionString.substring(1,2);
 
-            if (!GameClientUtilities.validLetterChecker(firstLetterEnd, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetterEnd, numbersBlack)) {
+            if (!ClientUtilities.validLetter(firstLetterEnd, lettersBlack) || !ClientUtilities.validNumber(secondLetterEnd, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int colStart = GameClientUtilities.letterToPositionMove(firstLetterStart);
+            int colStart = ClientUtilities.letterToPositionMove(firstLetterStart);
             int rowStart = Integer.parseInt(secondLetterStart);
 
             ChessPosition startPos = new ChessPosition(rowStart, colStart);
@@ -203,7 +203,7 @@ public class GameClient {
                 return "Promotion is not applicable to piece";
             }
 
-            int colEnd = GameClientUtilities.letterToPositionMove(firstLetterEnd);
+            int colEnd = ClientUtilities.letterToPositionMove(firstLetterEnd);
             int rowEnd = Integer.parseInt(secondLetterEnd);
 
             ChessPosition endPos = new ChessPosition(rowEnd, colEnd);
@@ -228,11 +228,11 @@ public class GameClient {
             String firstLetter = positionString.substring(0,1);
             String secondLetter = positionString.substring(1,2);
 
-            if (!GameClientUtilities.validLetterChecker(firstLetter, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetter, numbersBlack)) {
+            if (!ClientUtilities.validLetter(firstLetter, lettersBlack) || !ClientUtilities.validNumber(secondLetter, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int col = GameClientUtilities.letterToPositionMove(firstLetter);
+            int col = ClientUtilities.letterToPositionMove(firstLetter);
             int row = Integer.parseInt(secondLetter);
 
             ChessPosition pos = new ChessPosition(row, col);
@@ -372,11 +372,11 @@ public class GameClient {
 
                 if (Objects.equals(color, "WHITE")) {
                     pos = new ChessPosition(8-row, column+1);
-                    highlight = GameClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
+                    highlight = ClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
                 }
                 else {
                     pos = new ChessPosition(row+1, 8-column);
-                    highlight = GameClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
+                    highlight = ClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
                 }
                 ChessPiece piece = testBoard.getPiece(pos);
 

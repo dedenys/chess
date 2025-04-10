@@ -67,8 +67,6 @@ public class LoggedinClient {
         LogoutRequest request = new LogoutRequest(auth);
         server.logout(request);
         return ("Have a nice day!");
-
-        //throw new Exception("Expected: <yourname>");
     }
 
     public String play(String... params) throws Exception {
@@ -80,11 +78,6 @@ public class LoggedinClient {
                 if (availableGames == null) {
                     return "List games prior to playing.";
                 }
-
-//                int intID = Integer.valueOf(id);
-//                if (intID <= 0 || intID > availableGames.length) {
-//                    return "Invalid gameID";
-//                }
 
                 JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
@@ -111,12 +104,6 @@ public class LoggedinClient {
                 return "List games prior to observing.";
             }
 
-            //if (Integer.parseInt(id) > availableGames.length) {
-            //    return "Invalid game id";
-            //}
-            //JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
-
-            //JoinGameResult r = server.joinGame(request, auth);
             gameID = Integer.parseInt(id);
             isObserving = true;
             state = State.GAME;
@@ -137,7 +124,6 @@ public class LoggedinClient {
             String name = params[0];
 
             CreateGameRequest request = new CreateGameRequest(auth, name);
-
 
             CreateGameResult r = server.createGame(request, auth);
             return String.format("You created game:  %s.", name);
@@ -167,7 +153,4 @@ public class LoggedinClient {
         }
         return result.toString();
     }
-
-
-
 }

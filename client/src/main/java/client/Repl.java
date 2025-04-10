@@ -117,42 +117,6 @@ public class Repl implements NotificationHandler {
         printPrompt();
     }
 
-
-//    public void notify(ServerMessage message) {
-//        //System.out.println("in notify");
-//        //System.out.println(message.getServerMessageType());
-////        switch (message.getServerMessageType()) {
-////            case NOTIFICATION -> displayNotification(((NotificationMessage) message).getMessage());
-////            case ERROR -> displayError(((ErrorMessage) message).getErrorMessage());
-////            case LOAD_GAME -> test(((LoadGameMessage) message));
-////        }
-//
-//        GameClient.draw(null, null);
-//    }
-
-    private void displayNotification(String message) {
-        System.out.println("displaying notification");
-        System.out.println(RED+message);
-        printPrompt();
-    }
-
-    private void displayError(String errorMessage) {
-        System.out.println(RED+errorMessage);
-        printPrompt();
-    }
-
-    private void test(LoadGameMessage message) {
-        System.out.println("trying to load game");
-        ChessGame game = message.getGame();
-    }
-
-    private void loadGame(ChessGame game) {
-        System.out.println("in client load game");
-        GameClient.testGame = game;
-        GameClient.testBoard = game.getBoard();
-        GameClient.draw(null, null);
-    }
-
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
     }
