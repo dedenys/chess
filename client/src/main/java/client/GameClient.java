@@ -31,6 +31,7 @@ public class GameClient {
     private final NotificationHandler notificationHandler;
     private WebSocketFacade ws;
     public static ChessGame.TeamColor currentTurn;
+    public boolean isObserving = false;
 
 
     // UI
@@ -90,7 +91,16 @@ public class GameClient {
     }
 
     public String help() {
-        return """
+        if (isObserving) {
+            return """
+                    - help
+                    - redraw
+                    - leave
+                    - highlight <position>
+                    """;
+        }
+        else {
+            return """
                     - help
                     - redraw
                     - leave
@@ -98,6 +108,7 @@ public class GameClient {
                     - resign
                     - highlight <position>
                     """;
+        }
     }
 
     public String eval(String input) {
@@ -105,14 +116,25 @@ public class GameClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "quit" -> "quit";
-                case "leave" -> leave();
-                case "redraw" -> draw(null,null);
-                case "move" -> makeMove(params);
-                case "highlight" -> highlight(params);
-                default -> help();
-            };
+            if (isObserving) {
+                return switch (cmd) {
+                    case "quit" -> "quit";
+                    case "leave" -> leave();
+                    case "redraw" -> draw(null,null);
+                    case "highlight" -> highlight(params);
+                    default -> help();
+                };
+            }
+            else {
+                return switch (cmd) {
+                    case "quit" -> "quit";
+                    case "leave" -> leave();
+                    case "redraw" -> draw(null,null);
+                    case "move" -> makeMove(params);
+                    case "highlight" -> highlight(params);
+                    default -> help();
+                };
+            }
         } catch (Exception ex) {
             return ex.getMessage();
         }

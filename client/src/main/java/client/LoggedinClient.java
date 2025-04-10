@@ -17,6 +17,7 @@ public class LoggedinClient {
     private final String serverUrl;
     private final ServerFacade server;
     public State state = State.LOGGEDIN;
+    public boolean isObserving = false;
     public String auth = null;
     public GameData game = null;
     private GameData[] availableGames;
@@ -80,10 +81,16 @@ public class LoggedinClient {
                     return "List games prior to playing.";
                 }
 
+//                int intID = Integer.valueOf(id);
+//                if (intID <= 0 || intID > availableGames.length) {
+//                    return "Invalid gameID";
+//                }
+
                 JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
                 JoinGameResult r = server.joinGame(request, auth);
                 gameID = Integer.parseInt(id);
+                isObserving = false;
                 state = State.GAME;
                 game = availableGames[Integer.parseInt(id)-1];
                 color = colorToBe;
@@ -110,6 +117,8 @@ public class LoggedinClient {
             //JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
             //JoinGameResult r = server.joinGame(request, auth);
+            gameID = Integer.parseInt(id);
+            isObserving = true;
             state = State.GAME;
             game = availableGames[Integer.parseInt(id)-1];
             color = "WHITE";

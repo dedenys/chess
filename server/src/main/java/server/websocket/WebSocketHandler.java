@@ -23,6 +23,7 @@ import websocket.messages.NotificationMessage;
 //import webSocketMessages.Notification;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Timer;
 
 import static websocket.messages.ServerMessage.ServerMessageType.ERROR;
@@ -53,8 +54,9 @@ public class WebSocketHandler {
                 makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
             }
 
+            System.out.println("message received");
             String username = getUsername(command.getAuthToken());
-
+            System.out.println(username);
             //saveSession(command.getGameID(), session);
             saveSession(username, session);
 
@@ -97,10 +99,22 @@ public class WebSocketHandler {
     private void connect(Session session, String username, UserGameCommand command) throws IOException {
         System.out.println("in connect");
         var message = String.format("%s is in the game", username);
-        connections.broadcast(username, new NotificationMessage(NOTIFICATION, message));
         int id = command.getGameID();
+        System.out.println(id);
         GameData data = gameDAO.getGame(id);
         ChessGame game = data.game();
+        String color = null;
+        if (Objects.equals(data.whiteUsername(), username)) {
+            color = "white";
+        }
+        if (Objects.equals(data.blackUsername(), username)) {
+            color = "black";
+        }
+        if (color != null) {
+            message += " as " + color;
+        }
+        System.out.println("about to notify");
+        connections.broadcast(username, new NotificationMessage(NOTIFICATION, message));
         connections.loadGame(username, game);
     }
 

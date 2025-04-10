@@ -58,6 +58,7 @@ public class Repl implements NotificationHandler {
                 gameClient.color = loggedinClient.color;
                 gameClient.setAuth(loggedinClient.auth);
                 gameClient.setGameID(loggedinClient.gameID);
+                gameClient.isObserving = loggedinClient.isObserving;
                 gameClient.connect();
                 loggedinClient.state = State.LOGGEDIN;
             }
