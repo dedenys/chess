@@ -69,7 +69,8 @@ public class WebSocketHandler {
 
         }
     catch (Exception e) {
-            sendMessage(session.getRemote(), new ErrorMessage(ERROR,"websocket error :("));
+            System.out.println("caught exception");
+            sendMessage(session.getRemote(), new ErrorMessage(ERROR,e.getMessage()));
     }
  //       UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
  //       NotificationMessage n = new NotificationMessage(NOTIFICATION, "test!");
@@ -80,13 +81,15 @@ public class WebSocketHandler {
 //        }
     }
 
-    private void sendMessage(RemoteEndpoint remote, ErrorMessage errorMessage) {
+    private void sendMessage(RemoteEndpoint remote, ErrorMessage errorMessage) throws IOException {
+        String json = new Gson().toJson(errorMessage, ErrorMessage.class);
+        remote.sendString(json);
     }
 
-    private String getUsername(String authToken) {
+    private String getUsername(String authToken) throws Exception {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
-            return "NULL USER";
+            throw new Exception("Error: bad authentication ;(");
         }
         String name = auth.username();
         return name;
@@ -96,12 +99,17 @@ public class WebSocketHandler {
         connections.add(user, session);
     }
 
-    private void connect(Session session, String username, UserGameCommand command) throws IOException {
+    private void connect(Session session, String username, UserGameCommand command) throws Exception {
         System.out.println("in connect");
         var message = String.format("%s is in the game", username);
         int id = command.getGameID();
-        System.out.println(id);
+        //System.out.println(id);
         GameData data = gameDAO.getGame(id);
+        //System.out.println(data);
+        if (data == null) {
+            throw new Exception("Error: bad gameID ;(");
+        }
+        //System.out.println("skipped");
         ChessGame game = data.game();
         String color = null;
         if (Objects.equals(data.whiteUsername(), username)) {
@@ -118,6 +126,9 @@ public class WebSocketHandler {
         connections.loadGame(username, game);
     }
 
+    private void error() {
+
+    }
 
     private void makeMove(Session session, String username, MakeMoveCommand command) {
         try {

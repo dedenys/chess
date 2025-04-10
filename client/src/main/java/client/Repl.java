@@ -54,7 +54,9 @@ public class Repl implements NotificationHandler {
                 state = State.GAME;
                 game = loggedinClient.game;
                 gameClient.gameData = game;
-                gameClient.game = game.game();
+                if (game != null) {
+                    gameClient.game = game.game();
+                }
                 gameClient.color = loggedinClient.color;
                 gameClient.setAuth(loggedinClient.auth);
                 gameClient.setGameID(loggedinClient.gameID);
@@ -104,6 +106,14 @@ public class Repl implements NotificationHandler {
         GameClient.currentTurn = game.getTeamTurn();
         System.out.println("\n");
         GameClient.draw(null, null);
+    }
+
+    @Override
+    public void error(ErrorMessage notification) {
+        //System.out.println(notification);
+        System.out.println(RED + notification.getMessage());
+
+        printPrompt();
     }
 
 

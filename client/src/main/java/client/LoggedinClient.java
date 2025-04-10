@@ -111,16 +111,21 @@ public class LoggedinClient {
                 return "List games prior to observing.";
             }
 
-            if (Integer.parseInt(id) > availableGames.length) {
-                return "Invalid game id";
-            }
+            //if (Integer.parseInt(id) > availableGames.length) {
+            //    return "Invalid game id";
+            //}
             //JoinGameRequest request = new JoinGameRequest(auth, colorToBe, Integer.parseInt(id));
 
             //JoinGameResult r = server.joinGame(request, auth);
             gameID = Integer.parseInt(id);
             isObserving = true;
             state = State.GAME;
-            game = availableGames[Integer.parseInt(id)-1];
+            try {
+                game = availableGames[Integer.parseInt(id)-1];
+            } catch (Exception e) {
+                game = null;
+            }
+
             color = "WHITE";
             return String.format("You are observing game:  %s.", id);
         }
