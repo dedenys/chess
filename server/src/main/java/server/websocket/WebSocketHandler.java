@@ -124,7 +124,8 @@ public class WebSocketHandler {
             message += " as " + color;
         }
         System.out.println("about to notify");
-        connections.broadcast(username, new NotificationMessage(NOTIFICATION, message));
+        connections.joinUserToGame(username, command.getGameID());
+        connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, message));
         connections.loadGame(username, game);
     }
 
@@ -172,8 +173,8 @@ public class WebSocketHandler {
             String json = new Gson().toJson(newGameData, GameData.class);
             gameDAO.updateGame(id, json);
             System.out.println(game);
-            connections.broadcastGame(game);
-            connections.broadcast(username, new NotificationMessage(NOTIFICATION, m.toString()));
+            connections.broadcastGame(id, game);
+            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, m.toString()));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("Error: " + e.getMessage());
@@ -181,8 +182,30 @@ public class WebSocketHandler {
 
     }
 
-    private void leaveGame(Session session, String username, UserGameCommand command) {
+    private void leaveGame(Session session, String username, UserGameCommand command) throws Exception{
+        try {
+            int id = command.getGameID();
+            GameData gameData = gameDAO.getGame(id);
+            ChessGame game = gameData.game();
 
+            GameData newGameData = gameData;
+            if (Objects.equals(username, gameData.blackUsername())) {
+                newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), game);
+            }
+            if (Objects.equals(username, gameData.whiteUsername())) {
+                newGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), game);
+            }
+
+            String json = new Gson().toJson(newGameData, GameData.class);
+            gameDAO.updateGame(id, json);
+            String message = String.format("%s left the game", username);
+            connections.leaveUserFromGame(username);
+            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, message));
+            connections.removeConnection(username);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Error: " + e.getMessage());
+        }
     }
 
     private void resign(Session session, String username, UserGameCommand command) throws Exception {
@@ -205,7 +228,7 @@ public class WebSocketHandler {
             String json = new Gson().toJson(newGameData, GameData.class);
             gameDAO.updateGame(id, json);
             String message = String.format("%s resigned", username);
-            connections.broadcast("", new NotificationMessage(NOTIFICATION, message));
+            connections.broadcast(id, "", new NotificationMessage(NOTIFICATION, message));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("Error: " + e.getMessage());

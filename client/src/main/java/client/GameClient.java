@@ -90,9 +90,15 @@ public class GameClient {
         } catch (Exception e) {
             throw  new RuntimeException(e);
         }
-
     }
 
+    public void sendLeave() {
+        try {
+            ws.leave(auth, gameID);
+        } catch (Exception e) {
+            throw  new RuntimeException(e);
+        }
+    }
 
     public void sendMove(ChessMove m) {
         try {
@@ -339,6 +345,7 @@ public class GameClient {
     }
 
     public String leave() {
+        sendLeave();
         isLeaving = true;
 
         return  String.format("You left the game");

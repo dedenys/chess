@@ -20,6 +20,14 @@ public class ConnectionManager {
         connections.put(visitorName, connection);
     }
 
+    public void joinUserToGame(String username, int gameID) {
+        playersInGames.put(username, gameID);
+    }
+
+    public void leaveUserFromGame(String username) {
+        playersInGames.remove(username);
+    }
+
     public void remove(String visitorName) {
         connections.remove(visitorName);
     }
@@ -32,13 +40,15 @@ public class ConnectionManager {
         c.send(result);
     }
 
-    public void broadcastGame(ChessGame game) throws IOException {
+    public void broadcastGame(int gameID, ChessGame game) throws IOException {
         var removeList = new ArrayList<Connection>();
         LoadGameMessage message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
         String result = new Gson().toJson(message, LoadGameMessage.class);
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                c.send(result);
+                if (playersInGames.get(c.name) == gameID) {
+                    c.send(result);
+                }
             } else {
                 removeList.add(c);
             }
@@ -50,7 +60,17 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(String excludeVisitorName, NotificationMessage notification) throws IOException {
+    public void removeConnection(String name) {
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.name.equals(name)) {
+                    connections.remove(c.name);
+                }
+            }
+        }
+    }
+
+    public void broadcast(int gameID, String excludeVisitorName, NotificationMessage notification) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
@@ -59,7 +79,9 @@ public class ConnectionManager {
                 if (!c.name.equals(excludeVisitorName)) {
                     //System.out.println(notification.getMessage());
                     //c.send(notification.toString());
-                    c.send(result);
+                    if (playersInGames.get(c.name) == gameID) {
+                        c.send(result);
+                    }
                 }
             } else {
                 removeList.add(c);
