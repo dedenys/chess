@@ -114,7 +114,7 @@ public class LoggedinClient {
             }
 
             color = "WHITE";
-            return String.format("You are observing game:  %s.", id);
+            return String.format("You are observing game. . .  %s.", id);
         }
         throw new Exception("Expected: <gameID>");
     }

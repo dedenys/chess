@@ -9,6 +9,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -114,6 +115,10 @@ public class Repl implements NotificationHandler {
         //System.out.println(notification);
         System.out.println(RED + notification.getMessage());
 
+        if (Objects.equals(notification.getMessage(), "Error: bad gameID ;(")) {
+            state = State.LOGGEDIN;
+            GameClient.isLeaving = false;
+        }
         printPrompt();
     }
 
