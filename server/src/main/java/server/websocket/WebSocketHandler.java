@@ -197,17 +197,6 @@ public class WebSocketHandler {
             }
 
 
-            System.out.println("2");
-            GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
-            String json = new Gson().toJson(newGameData, GameData.class);
-            gameDAO.updateGame(id, json);
-            System.out.println(game);
-            connections.broadcastGame(id, game);
-            String startPositionText = positionToText(m.getStartPosition());
-            String endPositionText = positionToText(m.getEndPosition());
-            String moveMessage = String.format("%s moved %s to %s", username, startPositionText, endPositionText);
-            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, moveMessage));
-
             ChessGame.TeamColor checkColor;
             String checkUserName;
             if (c == ChessGame.TeamColor.WHITE) {
@@ -224,14 +213,38 @@ public class WebSocketHandler {
             }
 
             boolean check = game.isInCheck(checkColor);
+            boolean checkMate = game.isInCheckmate(checkColor);
+            boolean staleMate = game.isInStalemate(checkColor);
+
+            if (checkMate || staleMate) {
+                game.isOver = true;
+            }
+
+            System.out.println("2");
+            GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            String json = new Gson().toJson(newGameData, GameData.class);
+            gameDAO.updateGame(id, json);
+            System.out.println(game);
+            connections.broadcastGame(id, game);
+            String startPositionText = positionToText(m.getStartPosition());
+            String endPositionText = positionToText(m.getEndPosition());
+            String moveMessage = String.format("%s moved %s to %s", username, startPositionText, endPositionText);
+            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, moveMessage));
+
+
+
             if (check) {
                 String checkText = String.format("%s (%s) is in check", checkUserName, checkColor);
                 NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
                 connections.broadcast(id, "", checkMessage);
             }
-            boolean checkMate = game.isInCheckmate(checkColor);
             if (checkMate) {
-                String checkText = String.format("%s (%s) is in checkmate", checkUserName, checkColor);
+                String checkText = String.format("%s (%s) is in checkmate.", checkUserName, checkColor);
+                NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
+                connections.broadcast(id, "", checkMessage);
+            }
+            if (staleMate) {
+                String checkText = String.format("%s (%s) is in stalemate", checkUserName, checkColor);
                 NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
                 connections.broadcast(id, "", checkMessage);
             }
