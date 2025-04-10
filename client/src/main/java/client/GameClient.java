@@ -84,6 +84,16 @@ public class GameClient {
         }
     }
 
+    public void sendResign() {
+        try {
+            ws.resign(auth, gameID);
+        } catch (Exception e) {
+            throw  new RuntimeException(e);
+        }
+
+    }
+
+
     public void sendMove(ChessMove m) {
         try {
             ws.makeMove(auth, gameID, m);
@@ -194,6 +204,7 @@ public class GameClient {
 
     private String resignYes() {
         if (resignCheck) {
+            sendResign();
             return "Resigning. . .";
         }
         return help();

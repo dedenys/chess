@@ -15,7 +15,7 @@ public class ChessGame {
 
     TeamColor currentTeamColor = TeamColor.WHITE;
     ChessBoard currentBoard = new ChessBoard();
-    boolean isOver = false;
+    public boolean isOver = false;
     boolean wKingMoved = false;
     boolean wLRookMoved = false;
     boolean wRRookMoved = false;

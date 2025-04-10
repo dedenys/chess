@@ -145,6 +145,10 @@ public class WebSocketHandler {
             ChessPiece p = game.getBoard().getPiece(start);
             ChessGame.TeamColor c = p.getTeamColor();
 
+            if (game.isOver) {
+                throw new Exception("game is already over");
+            }
+
             if (!Objects.equals(username, gameData.blackUsername()) && !Objects.equals(username, gameData.whiteUsername())) {
                 throw new Exception("cannot make move as observer");
             }
@@ -181,8 +185,31 @@ public class WebSocketHandler {
 
     }
 
-    private void resign(Session session, String username, UserGameCommand command) {
+    private void resign(Session session, String username, UserGameCommand command) throws Exception {
+        try {
+            int id = command.getGameID();
+            GameData gameData = gameDAO.getGame(id);
+            ChessGame game = gameData.game();
 
+            if (game.isOver) {
+                throw new Exception("game is already over");
+            }
+            game.isOver = true;
+
+
+            if (!Objects.equals(username, gameData.blackUsername()) && !Objects.equals(username, gameData.whiteUsername())) {
+                throw new Exception("cannot resign as observer");
+            }
+
+            GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
+            String json = new Gson().toJson(newGameData, GameData.class);
+            gameDAO.updateGame(id, json);
+            String message = String.format("%s resigned", username);
+            connections.broadcast("", new NotificationMessage(NOTIFICATION, message));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Error: " + e.getMessage());
+        }
     }
 
 //    private void enter(String visitorName, Session session) throws IOException {
