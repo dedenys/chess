@@ -32,6 +32,7 @@ public class GameClient {
     private WebSocketFacade ws;
     public static ChessGame.TeamColor currentTurn;
     public boolean isObserving = false;
+    boolean resignCheck = false;
 
 
     // UI
@@ -98,6 +99,8 @@ public class GameClient {
                     - help
                     - redraw
                     - leave
+                    - move <startposition> <endposition> <promotion (pawn only)>
+                    - resign
                     - highlight <position>
                     """;
         }
@@ -123,6 +126,10 @@ public class GameClient {
                     case "quit" -> "quit";
                     case "leave" -> leave();
                     case "redraw" -> draw(null,null);
+                    case "move" -> makeMove(params);
+                    case "resign" -> resign();
+                    case "yes" -> resignYes();
+                    case "no" -> resignNo();
                     case "highlight" -> highlight(params);
                     default -> help();
                 };
@@ -133,6 +140,9 @@ public class GameClient {
                     case "leave" -> leave();
                     case "redraw" -> draw(null,null);
                     case "move" -> makeMove(params);
+                    case "resign" -> resign();
+                    case "yes" -> resignYes();
+                    case "no" -> resignNo();
                     case "highlight" -> highlight(params);
                     default -> help();
                 };
@@ -182,6 +192,26 @@ public class GameClient {
         return numberList.contains(number);
     }
 
+    private String resignYes() {
+        if (resignCheck) {
+            return "Resigning. . .";
+        }
+        return help();
+    }
+
+    private  String resignNo() {
+        if (resignCheck) {
+            resignCheck = false;
+            return "Resign cancelled.";
+        }
+        return help();
+    }
+
+    public String resign() {
+        resignCheck = true;
+        return "Are you sure you want to resign? (yes/no)";
+    }
+
     public String makeMove(String... params) throws Exception {
         if (params.length == 2 || params.length == 3) {
             String startPositionString = params[0];
@@ -227,12 +257,12 @@ public class GameClient {
                 return "Start position is currently empty";
             }
 
-            if ((piece.getTeamColor() == ChessGame.TeamColor.BLACK) && !Objects.equals(color, "BLACK")) {
-                return "Error: Piece belongs to opponent";
-            }
-            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) && !Objects.equals(color, "WHITE")) {
-                return "Error: Piece belongs to opponent";
-            }
+//            if ((piece.getTeamColor() == ChessGame.TeamColor.BLACK) && !Objects.equals(color, "BLACK")) {
+//                return "Error: Piece belongs to opponent";
+//            }
+//            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) && !Objects.equals(color, "WHITE")) {
+//                return "Error: Piece belongs to opponent";
+//            }
 
             if ((piece.getPieceType() != ChessPiece.PieceType.PAWN) && promotion != null) {
                 return "Promotion is not applicable to piece";
@@ -246,7 +276,8 @@ public class GameClient {
             // ADD promotion functionality!
             ChessMove move = new ChessMove(startPos, endPos, null);
 
-            return sendMove(move);
+            sendMove(move);
+            return "";
         }
         throw new Exception("Expected: <startposition> <endposition>");
     }

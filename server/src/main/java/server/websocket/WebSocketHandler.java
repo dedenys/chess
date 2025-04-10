@@ -2,6 +2,8 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 //import dataaccess.DataAccess;
 //import exception.ResponseException;
@@ -139,7 +141,27 @@ public class WebSocketHandler {
             System.out.println(gameData);
             ChessGame game = gameData.game();
 
-            game.makeMove(m);
+            ChessPosition start = m.getStartPosition();
+            ChessPiece p = game.getBoard().getPiece(start);
+            ChessGame.TeamColor c = p.getTeamColor();
+
+            if (!Objects.equals(username, gameData.blackUsername()) && !Objects.equals(username, gameData.whiteUsername())) {
+                throw new Exception("cannot make move as observer");
+            }
+
+            if (Objects.equals(gameData.whiteUsername(), username) && !(c == ChessGame.TeamColor.WHITE)) {
+                throw new Exception("wrong piece color");
+            }
+            if (Objects.equals(gameData.blackUsername(), username) && !(c == ChessGame.TeamColor.BLACK)) {
+                throw new Exception("wrong piece color");
+            }
+
+            try {
+                game.makeMove(m);
+            } catch (Exception e) {
+                throw new Exception("invalid move");
+            }
+
 
             System.out.println("2");
             GameData newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game);
@@ -150,7 +172,7 @@ public class WebSocketHandler {
             connections.broadcast(username, new NotificationMessage(NOTIFICATION, m.toString()));
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new Exception("Error: bad move ;(");
+            throw new Exception("Error: " + e.getMessage());
         }
 
     }
