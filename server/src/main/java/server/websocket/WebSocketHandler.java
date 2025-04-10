@@ -229,21 +229,20 @@ public class WebSocketHandler {
             String startPositionText = positionToText(m.getStartPosition());
             String endPositionText = positionToText(m.getEndPosition());
             String moveMessage = String.format("%s moved %s to %s", username, startPositionText, endPositionText);
+
             connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, moveMessage));
-
-
 
             if (check) {
                 String checkText = String.format("%s (%s) is in check", checkUserName, checkColor);
                 NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
                 connections.broadcast(id, "", checkMessage);
             }
-            if (checkMate) {
+            else if (checkMate) {
                 String checkText = String.format("%s (%s) is in checkmate.", checkUserName, checkColor);
                 NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
                 connections.broadcast(id, "", checkMessage);
             }
-            if (staleMate) {
+            else if (staleMate) {
                 String checkText = String.format("%s (%s) is in stalemate", checkUserName, checkColor);
                 NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
                 connections.broadcast(id, "", checkMessage);
