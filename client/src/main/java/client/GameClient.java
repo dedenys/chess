@@ -34,15 +34,11 @@ public class GameClient {
     public boolean isObserving = false;
     boolean resignCheck = false;
 
-
-    // UI
-
     // Board dimensions.
     private static final int BOARD_SIZE_IN_SQUARES = 8;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
     private static final int LINE_WIDTH_IN_PADDED_CHARS = 0;
 
-    // Padded characters.
     private static final String EMPTY = "   ";
 
     private static final String P = " P ";
@@ -53,8 +49,6 @@ public class GameClient {
     private static final String K = " K ";
 
     private static Random rand = new Random();
-
-
 
     public GameClient(String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
@@ -75,10 +69,8 @@ public class GameClient {
 
     public void connect() {
         try {
-            //System.out.println(gameID);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             ws.connectToGame(auth, gameID);
-            //System.out.println("did it work?");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -103,15 +95,13 @@ public class GameClient {
     public void sendMove(ChessMove m) {
         try {
             ws.makeMove(auth, gameID, m);
-            //return "Move successful!";
+
         } catch (Exception e) {
-            //return "Error occurred ;(";
         }
     }
 
     public String help() {
-        if (isObserving) {
-            return """
+        return """
                     - help
                     - redraw
                     - leave
@@ -119,17 +109,6 @@ public class GameClient {
                     - resign
                     - highlight <position>
                     """;
-        }
-        else {
-            return """
-                    - help
-                    - redraw
-                    - leave
-                    - move <startposition> <endposition> <promotion (pawn only)>
-                    - resign
-                    - highlight <position>
-                    """;
-        }
     }
 
     public String eval(String input) {
@@ -137,75 +116,21 @@ public class GameClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (isObserving) {
-                return switch (cmd) {
-                    case "quit" -> "quit";
-                    case "leave" -> leave();
-                    case "redraw" -> draw(null,null);
-                    case "move" -> makeMove(params);
-                    case "resign" -> resign();
-                    case "yes" -> resignYes();
-                    case "no" -> resignNo();
-                    case "highlight" -> highlight(params);
-                    default -> help();
-                };
-            }
-            else {
-                return switch (cmd) {
-                    case "quit" -> "quit";
-                    case "leave" -> leave();
-                    case "redraw" -> draw(null,null);
-                    case "move" -> makeMove(params);
-                    case "resign" -> resign();
-                    case "yes" -> resignYes();
-                    case "no" -> resignNo();
-                    case "highlight" -> highlight(params);
-                    default -> help();
-                };
-            }
+            return switch (cmd) {
+                case "quit" -> "quit";
+                case "leave" -> leave();
+                case "redraw" -> draw(null,null);
+                case "move" -> makeMove(params);
+                case "resign" -> resign();
+                case "yes" -> resignYes();
+                case "no" -> resignNo();
+                case "highlight" -> highlight(params);
+                default -> help();
+            };
+
         } catch (Exception ex) {
             return ex.getMessage();
         }
-    }
-
-    private int letterToPosition(String letter) {
-        int col = 0;
-        switch (letter) {
-            case "a" -> col = 8;
-            case "b" -> col = 7;
-            case "c" -> col = 6;
-            case "d" -> col = 5;
-            case "e" -> col = 4;
-            case "f" -> col = 3;
-            case "g" -> col = 2;
-            case "h" -> col = 1;
-        }
-        return col;
-    }
-
-    private int letterToPositionMove(String letter) {
-        int col = 0;
-        switch (letter) {
-            case "a" -> col = 8;
-            case "b" -> col = 7;
-            case "c" -> col = 6;
-            case "d" -> col = 5;
-            case "e" -> col = 4;
-            case "f" -> col = 3;
-            case "g" -> col = 2;
-            case "h" -> col = 1;
-        }
-        return col;
-    }
-
-    private boolean validLetterChecker(String letter) {
-        List<String> letterList = Arrays.asList(lettersBlack);
-        return letterList.contains(letter);
-    }
-
-    private boolean validNumberChecker(String number) {
-        List<String> numberList = Arrays.asList(numbersBlack);
-        return numberList.contains(number);
     }
 
     private String resignYes() {
@@ -253,18 +178,18 @@ public class GameClient {
             String firstLetterStart = startPositionString.substring(0,1);
             String secondLetterStart = startPositionString.substring(1,2);
 
-            if (!validLetterChecker(firstLetterStart) || !validNumberChecker(secondLetterStart)) {
+            if (!GameClientUtilities.validLetterChecker(firstLetterStart, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetterStart, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
             String firstLetterEnd = endPositionString.substring(0,1);
             String secondLetterEnd = endPositionString.substring(1,2);
 
-            if (!validLetterChecker(firstLetterEnd) || !validNumberChecker(secondLetterEnd)) {
+            if (!GameClientUtilities.validLetterChecker(firstLetterEnd, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetterEnd, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int colStart = letterToPositionMove(firstLetterStart);
+            int colStart = GameClientUtilities.letterToPositionMove(firstLetterStart);
             int rowStart = Integer.parseInt(secondLetterStart);
 
             ChessPosition startPos = new ChessPosition(rowStart, colStart);
@@ -274,18 +199,11 @@ public class GameClient {
                 return "Start position is currently empty";
             }
 
-//            if ((piece.getTeamColor() == ChessGame.TeamColor.BLACK) && !Objects.equals(color, "BLACK")) {
-//                return "Error: Piece belongs to opponent";
-//            }
-//            if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE) && !Objects.equals(color, "WHITE")) {
-//                return "Error: Piece belongs to opponent";
-//            }
-
             if ((piece.getPieceType() != ChessPiece.PieceType.PAWN) && promotion != null) {
                 return "Promotion is not applicable to piece";
             }
 
-            int colEnd = letterToPositionMove(firstLetterEnd);
+            int colEnd = GameClientUtilities.letterToPositionMove(firstLetterEnd);
             int rowEnd = Integer.parseInt(secondLetterEnd);
 
             ChessPosition endPos = new ChessPosition(rowEnd, colEnd);
@@ -310,11 +228,11 @@ public class GameClient {
             String firstLetter = positionString.substring(0,1);
             String secondLetter = positionString.substring(1,2);
 
-            if (!validLetterChecker(firstLetter) || !validNumberChecker(secondLetter)) {
+            if (!GameClientUtilities.validLetterChecker(firstLetter, lettersBlack) || !GameClientUtilities.validNumberChecker(secondLetter, numbersBlack)) {
                 return "Incorrect position notation. Use notation such as 'e4' or 'a1'";
             }
 
-            int col = letterToPositionMove(firstLetter);
+            int col = GameClientUtilities.letterToPositionMove(firstLetter);
             int row = Integer.parseInt(secondLetter);
 
             ChessPosition pos = new ChessPosition(row, col);
@@ -332,7 +250,6 @@ public class GameClient {
                 int r = end.getRow();
                 int c = end.getColumn();
 
-                //int newc = -c + 9;
                 ChessPosition newEnd = new ChessPosition(r, c);
                 endPositions.add(newEnd);
             }
@@ -341,7 +258,6 @@ public class GameClient {
             return ("Highlighting board for: " + positionString);
         }
         throw new Exception("Expected: <position>");
-
     }
 
     public String leave() {
@@ -424,35 +340,6 @@ public class GameClient {
         return pieceToPrint;
     }
 
-    private static int setHighlight(ChessPosition selectedPiece, int boardRow, int boardCol, List<ChessPosition> endPositions) {
-        int rowIndex;
-        int colIndex;
-        if (Objects.equals(color, "WHITE")) {
-            rowIndex = 8-boardRow;
-            colIndex = boardCol+1;
-        }
-        else {
-            rowIndex = boardRow+1;
-            colIndex = 8-boardCol;
-        }
-
-        int highlight = 0;
-        if (selectedPiece != null) {
-            if (selectedPiece.getRow() == (rowIndex) && selectedPiece.getColumn() == (colIndex)) {
-                highlight = 2;
-            }
-        }
-
-        if (endPositions != null) {
-            for (ChessPosition p: endPositions) {
-                if (p.getRow() == (rowIndex) && p.getColumn() == (colIndex)) {
-                    highlight = 1;
-                }
-            }
-        }
-        return highlight;
-    }
-
     private static void drawRowOfSquares(PrintStream out, int boardRow, ChessPosition selectedPiece, List<ChessPosition> endPositions) {
         int row = boardRow;
         int column;
@@ -485,11 +372,11 @@ public class GameClient {
 
                 if (Objects.equals(color, "WHITE")) {
                     pos = new ChessPosition(8-row, column+1);
-                    highlight = setHighlight(selectedPiece, boardRow, boardCol, endPositions);
+                    highlight = GameClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
                 }
                 else {
                     pos = new ChessPosition(row+1, 8-column);
-                    highlight = setHighlight(selectedPiece, boardRow, boardCol, endPositions);
+                    highlight = GameClientUtilities.setHighlight(color, selectedPiece, boardRow, boardCol, endPositions);
                 }
                 ChessPiece piece = testBoard.getPiece(pos);
 
@@ -538,10 +425,8 @@ public class GameClient {
                     setGray(out);
                     out.print(EMPTY.repeat(LINE_WIDTH_IN_PADDED_CHARS));
                 }
-
                 setGray(out);
             }
-
             out.print(SET_BG_COLOR_BORDER);
             out.print(SET_TEXT_COLOR_BLUE);
             out.print(" "+numbers[boardRow]+" ");
@@ -551,7 +436,6 @@ public class GameClient {
     }
 
     private static void drawHorizontalLine(PrintStream out) {
-
         int boardSizeInSpaces = BOARD_SIZE_IN_SQUARES * SQUARE_SIZE_IN_PADDED_CHARS +
                 (BOARD_SIZE_IN_SQUARES - 1) * LINE_WIDTH_IN_PADDED_CHARS;
 
@@ -583,7 +467,6 @@ public class GameClient {
         out.print(SET_BG_COLOR_DARK_GREY);
         out.print(SET_TEXT_COLOR_DARK_GREY);
     }
-
 
     private static void setBlack(PrintStream out, int highlight) {
         if (highlight == 1) {
