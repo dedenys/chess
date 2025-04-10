@@ -75,7 +75,7 @@ public class GameClient {
 
     public void connect() {
         try {
-            System.out.println(gameID);
+            //System.out.println(gameID);
             ws = new WebSocketFacade(serverUrl, notificationHandler);
             ws.connectToGame(auth, gameID);
             //System.out.println("did it work?");

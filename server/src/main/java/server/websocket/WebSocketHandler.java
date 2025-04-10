@@ -133,6 +133,35 @@ public class WebSocketHandler {
 
     }
 
+    private String positionToText(ChessPosition p) {
+        int row = p.getRow();
+        int col = p.getColumn();
+        String rowNum = "";
+        String colChar = "";
+
+        switch (row) {
+            case 1 -> rowNum = "1";
+            case 2 -> rowNum = "2";
+            case 3 -> rowNum = "3";
+            case 4 -> rowNum = "4";
+            case 5 -> rowNum = "5";
+            case 6 -> rowNum = "6";
+            case 7 -> rowNum = "7";
+            case 8 -> rowNum = "8";
+        }
+        switch (col) {
+            case 1 -> colChar = "h";
+            case 2 -> colChar = "g";
+            case 3 -> colChar = "f";
+            case 4 -> colChar = "e";
+            case 5 -> colChar = "d";
+            case 6 -> colChar = "c";
+            case 7 -> colChar = "b";
+            case 8 -> colChar = "a";
+        }
+        return (colChar+rowNum);
+    }
+
     private void makeMove(Session session, String username, MakeMoveCommand command) throws Exception {
         try {
             int id = command.getGameID();
@@ -174,7 +203,39 @@ public class WebSocketHandler {
             gameDAO.updateGame(id, json);
             System.out.println(game);
             connections.broadcastGame(id, game);
-            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, m.toString()));
+            String startPositionText = positionToText(m.getStartPosition());
+            String endPositionText = positionToText(m.getEndPosition());
+            String moveMessage = String.format("%s moved %s to %s", username, startPositionText, endPositionText);
+            connections.broadcast(id, username, new NotificationMessage(NOTIFICATION, moveMessage));
+
+            ChessGame.TeamColor checkColor;
+            String checkUserName;
+            if (c == ChessGame.TeamColor.WHITE) {
+                checkColor = ChessGame.TeamColor.BLACK;
+                checkUserName = gameData.blackUsername();
+            }
+            else {
+                checkColor = ChessGame.TeamColor.WHITE;
+                checkUserName = gameData.whiteUsername();
+            }
+
+            if (checkUserName == null) {
+                checkUserName = "EMPTY";
+            }
+
+            boolean check = game.isInCheck(checkColor);
+            if (check) {
+                String checkText = String.format("%s (%s) is in check", checkUserName, checkColor);
+                NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
+                connections.broadcast(id, "", checkMessage);
+            }
+            boolean checkMate = game.isInCheckmate(checkColor);
+            if (checkMate) {
+                String checkText = String.format("%s (%s) is in checkmate", checkUserName, checkColor);
+                NotificationMessage checkMessage = new NotificationMessage(NOTIFICATION, checkText);
+                connections.broadcast(id, "", checkMessage);
+            }
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("Error: " + e.getMessage());

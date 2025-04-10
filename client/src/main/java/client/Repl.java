@@ -106,6 +106,7 @@ public class Repl implements NotificationHandler {
         GameClient.currentTurn = game.getTeamTurn();
         System.out.println("\n");
         GameClient.draw(null, null);
+        printPrompt();
     }
 
     @Override
